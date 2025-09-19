@@ -15,7 +15,7 @@ A adoção do microsserviços muitas vezes anda de mãos dadas com o DevOps, poi
 
 Levando em consideração o conceito de microsserviços estruturamos o projeto da seguinte forma:
 
-<img href="./imgs/estrutura_micro_service.png">
+
 
 ![Micro_servico](/imgs/estrutura_micro_service.png)
 
@@ -25,11 +25,19 @@ Levando em consideração o conceito de microsserviços estruturamos o projeto d
 Todo o projeto será desenvolvido usando as tencologias:
 
 
-<h3>Frontend:<p>
-    VueJS + Vuetfy<p>
+Frontend:<p>
+   - VueJS + Vuetfy<p>
 
 
-<h3>Backend:<h3><p>
-    Python <p>
-    FastAPI <p>
-    Postgresql <p>
+Backend:<p>
+  -  Python <p>
+  -  FastAPI <p>
+  - Postgresql <p>
+
+## Quem são os  contribuidores do projeto?
+
+<img src="https://github.com/aleffericlys.png" width="60" height="60" style="border-radius: 50%;" >AlefF Ericlys[GitHub:](https://github.com/aleffericlys)
+
+<img src="https://github.com/Vinicius02612.png" width="60" height="60" style="border-radius: 50%;">Vinicius Nunes[GitHub:](https://github.com/Vinicius02612)
+
+<img src="https://github.com/carlosvale03.png" width="60" height="60" style="border-radius: 50%;">Carlos Henrique[GitHub:](https://github.com/carlosvale03)
