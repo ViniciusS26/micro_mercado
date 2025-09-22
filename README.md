@@ -45,7 +45,7 @@ Este projeto utiliza uma arquitetura de microsserviços e a abordagem de monorep
 ├── docker-compose.yml         # Orquestra todos os serviços para o ambiente de desenvolvimento
 ├── README.md
 │
-├── 📂 api-gateway/                # Ponto de entrada da API (FastAPI) que se comunica com o Front-end
+├── 📂 api-gateway/            # Ponto de entrada da API (FastAPI) que se comunica com Front-end
 │   ├── app/
 │   ├── Dockerfile
 │   └── requirements.txt
@@ -129,7 +129,7 @@ Este projeto utiliza uma arquitetura de microsserviços e a abordagem de monorep
 
 ``` 
 /frontend/
-├── 🐳 Dockerfile                 # Define a imagem Docker (geralmente com Nginx) para servir os arquivos
+├── 🐳 Dockerfile         # Define a imagem Docker (geralmente com Nginx) para servir os arquivos
 ├── 📄 package.json
 ├── 📄 vite.config.js (ou vue.config.js)
 ├── 📂 public/
