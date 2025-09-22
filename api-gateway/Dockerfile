@@ -1,4 +1,3 @@
-# Dockerfile for FastAPI app with PostgreSQL dependency
 
 FROM python:3.11-slim
 
