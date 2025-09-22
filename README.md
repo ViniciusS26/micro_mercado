@@ -40,7 +40,7 @@ Backend:<p>
 Este projeto utiliza uma arquitetura de microsserviços e a abordagem de monorepo para organizar o código.
 
 ```plaintext
-/mercado-sgm/
+/micro-mercado/
 ├── .gitignore
 ├── docker-compose.yml         # Orquestra todos os serviços para o ambiente de desenvolvimento
 ├── README.md
