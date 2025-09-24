@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List
-from app.schemas.schemas import FuncionarioCreate, FuncionarioResponse
+from schemas.schemas import FuncionarioCreate, FuncionarioResponse
 
 router = APIRouter()
 
