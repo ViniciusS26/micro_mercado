@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from models.models_funcionarios import Funcionarios, Enderecos
 from schemas.schemas import FuncionarioCreate, EnderecoCreate
-from db.database import SessionLocal
+
 
 def listar_todos_funcionarios(db: Session):
     return db.query(Funcionarios).all()
