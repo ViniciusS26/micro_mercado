@@ -6,8 +6,6 @@ from datetime import date, datetime
 
 
 
-
-
 class FuncionarioResponse(BaseModel):
     id: int
     nome: str
@@ -17,7 +15,11 @@ class FuncionarioResponse(BaseModel):
     data_nascimento: date
     cargo: str
     salario: float
+    senha: str
     data_contratacao: date
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
     model_config = ConfigDict(from_attributes=True)
 
 class FuncionarioCreate(BaseModel):
@@ -28,7 +30,13 @@ class FuncionarioCreate(BaseModel):
     data_nascimento: date
     cargo: str
     salario: float
+    senha: str
     data_contratacao: date
+    enderecos: List['EnderecoCreate'] | None = None
+
+
+    model_config = ConfigDict(from_attributes=True)
+
 
 
 class EnderecoResponse(BaseModel):
@@ -53,3 +61,5 @@ class EnderecoCreate(BaseModel):
     cidade: str
     estado: str
     cep: str
+
+    model_config = ConfigDict(from_attributes=True) 

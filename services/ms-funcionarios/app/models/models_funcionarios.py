@@ -21,9 +21,6 @@ class Funcionarios(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    dependentes = relationship("Dependentes", back_populates="funcionario", cascade="all, delete-orphan")
-
-
 
 class Enderecos(Base):
     __tablename__ = 'enderecos'
