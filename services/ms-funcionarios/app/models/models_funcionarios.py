@@ -10,16 +10,32 @@ class Funcionarios(Base):
     id = Column(Integer, primary_key=True, index=True)
     nome = Column(String(100), nullable=False)
     cpf = Column(String(11), unique=True, nullable=False)
-    rg = Column(String(20), unique=True, nullable=False)
-    data_nascimento = Column(Date, nullable=False)
-    endereco = Column(String(200), nullable=False)
-    telefone = Column(String(15), nullable=False)
     email = Column(String(100), unique=True, nullable=False)
+    telefone = Column(String(15), nullable=False)
+    data_nascimento = Column(Date, nullable=False)
     cargo = Column(String(50), nullable=False)
     salario = Column(Float, nullable=False)
+    senha = Column(String(255), nullable=False)
     data_contratacao = Column(Date, default=func.current_date(), nullable=False)
-    data_demissao = Column(Date, nullable=True)
+    enderecos = relationship("Enderecos", back_populates="funcionario", cascade="all, delete-orphan")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     dependentes = relationship("Dependentes", back_populates="funcionario", cascade="all, delete-orphan")
+
+
+
+class Enderecos(Base):
+    __tablename__ = 'enderecos'
+
+    id = Column(Integer, primary_key=True, index=True)
+    funcionario_id = Column(Integer, ForeignKey('funcionarios.id'), nullable=False)
+    logradouro = Column(String(100), nullable=False)
+    numero = Column(String(10), nullable=False)
+    complemento = Column(String(50), nullable=True)
+    bairro = Column(String(50), nullable=False)
+    cidade = Column(String(50), nullable=False)
+    estado = Column(String(2), nullable=False)
+    cep = Column(String(10), nullable=False)
+
+    funcionario = relationship("Funcionarios", back_populates="enderecos")

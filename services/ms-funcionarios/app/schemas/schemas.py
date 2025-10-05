@@ -14,9 +14,10 @@ class FuncionarioResponse(BaseModel):
     cpf: str
     email: str
     telefone: str
+    data_nascimento: date
     cargo: str
+    salario: float
     data_contratacao: date
-    data_cadastro: datetime = datetime.now()
     model_config = ConfigDict(from_attributes=True)
 
 class FuncionarioCreate(BaseModel):
@@ -24,8 +25,31 @@ class FuncionarioCreate(BaseModel):
     cpf: str
     email: str
     telefone: str
+    data_nascimento: date
     cargo: str
+    salario: float
     data_contratacao: date
 
 
-    
+class EnderecoResponse(BaseModel):
+    funcionario_id: int
+    logradouro: str
+    numero: str
+    complemento: str | None = None
+    bairro: str
+    cidade: str
+    estado: str
+    cep: str
+
+    model_config = ConfigDict(from_attributes=True) 
+
+
+class EnderecoCreate(BaseModel):
+    funcionario_id: int
+    logradouro: str
+    numero: str
+    complemento: str | None = None
+    bairro: str
+    cidade: str
+    estado: str
+    cep: str
