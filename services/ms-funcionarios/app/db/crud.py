@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from models.models_funcionarios import Funcionarios, Enderecos
-from schemas.schemas import FuncionarioCreate, EnderecoCreate
+from schemas.schema import FuncionarioCreate, EnderecoCreate
 
 
 def listar_todos_funcionarios(db: Session):
@@ -10,11 +10,11 @@ def obter_funcionario(db: Session, id: int):
     return db.query(Funcionarios).filter(Funcionarios.id == id).first()
 
 def obter_funcionarios_email(db: Session, email: str):
-    return db.query(Funcionarios).filter(Funcionarios.email == email).all()
+    return db.query(Funcionarios).filter(Funcionarios.email == email).first()
 
 
 def obter_funcionarios_cpf(db: Session, cpf: str):
-    return db.query(Funcionarios).filter(Funcionarios.cpf == cpf).all()
+    return db.query(Funcionarios).filter(Funcionarios.cpf == cpf).first()
 
 def ataulizar_funcionario(db: Session, id: int, funcionario: FuncionarioCreate):
     funcionario_db = db.query(Funcionarios).filter(Funcionarios.id == id).first()
@@ -36,11 +36,10 @@ def deletar_funcionario(db: Session, id: int):
 
 
 def criar_funcionario(db: Session, funcionario: FuncionarioCreate):
-    funcionario_db = Funcionarios(**funcionario.dict())
-    db.add(funcionario_db)
+    db.add(funcionario)
     db.commit()
-    db.refresh(funcionario_db)
-    return funcionario_db
+    db.refresh(funcionario)
+    return funcionario
 
 
 def atualizar_endereco(db: Session, id: int, endereco: EnderecoCreate):

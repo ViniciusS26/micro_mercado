@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import List
-from schemas.schemas import FuncionarioCreate, FuncionarioResponse
-from sqlalchemy.orm import Session
+from schemas.schema import FuncionarioCreate, FuncionarioResponse
+from sqlalchemy.orm import Session,joinedload
 from models.models_funcionarios import Funcionarios, Enderecos
 from db.connection import get_db, SessionLocal
 from db import crud
@@ -18,7 +18,21 @@ def obter_funcionario(skip: int = 0, limit: int = 10, db: Session = Depends(get_
 
 @router.post("/", response_model=FuncionarioResponse)
 def criar_funcionario(funcionario: FuncionarioCreate, db: Session = Depends(get_db)):
-    funcionario_db = crud.criar_funcionario(db, funcionario)
+
+    if crud.obter_funcionarios_email(db, funcionario.email):
+        raise HTTPException(status_code=400, detail="Email já cadastrado")
+    if crud.obter_funcionarios_cpf(db, funcionario.cpf):
+        raise HTTPException(status_code=400, detail="CPF já cadastrado")
+    
+    dados_funcionario = funcionario.model_dump(exclude={"enderecos"})
+    funcionarios_db = Funcionarios(**dados_funcionario)
+
+    dados_endereco  = funcionario.enderecos.model_dump()
+    endereco_db = Enderecos(**dados_endereco)
+    funcionarios_db.enderecos.append(endereco_db)
+
+    funcionario_db = crud.criar_funcionario(db, funcionarios_db)
+
     if not funcionario_db:
         raise HTTPException(status_code=400, detail="Erro ao criar funcionário")
     return funcionario_db
