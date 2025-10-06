@@ -1,0 +1,87 @@
+services:
+  # Base de Dados para cada serviço
+  db_funcionarios:
+    image: postgres:14-alpine
+    volumes:
+      - postgres_data_funcionarios:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=vini123
+      - POSTGRES_DB=funcionarios_db
+    ports:
+      - "5432:5432" # Exponha portas diferentes se rodar localmente sem Docker
+
+  ms_funcionarios:
+    build:
+      context: ./services/ms-funcionarios
+      dockerfile: Dockerfile
+    command: uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+    volumes:
+      - ./services/ms-funcionarios/app:/app
+    ports:
+      - "8001:8001"
+    depends_on:
+      - db_funcionarios
+    environment:
+      - DATABASE_URL=postgresql://postgres:vini123@db_funcionarios/funcionarios_db
+
+  # db_produtos:
+  #   image: postgres:14-alpine
+  #   volumes:
+  #     - postgres_data_produtos:/var/lib/postgresql/data/
+  #   environment:
+  #     - POSTGRES_USER=user
+  #    - POSTGRES_PASSWORD=password
+  #    - POSTGRES_DB=produtos_db
+  #  ports:
+  #    - "5433:5433"
+
+  # ... (definir um 'db_' para cada microsserviço)
+
+  # Microsserviços
+  
+#  ms_produtos:
+#    build:
+#      context: ./services/ms-produtos
+#      dockerfile: Dockerfile
+#    command: uvicorn app.main:app --host 0.0.0.0 --port 8002 --reload
+#    volumes:
+#      - ./services/ms-produtos/app:/app
+#    ports:
+#      - "8002:8002"
+#    depends_on:
+#      - db_produtos
+#    environment:
+#      - DATABASE_URL=postgresql://user:password@db_produtos/produtos_db
+
+  # ... (definir um 'ms_' para cada microsserviço)
+
+  # API Gateway
+  #api_gateway:
+  #  build:
+  #    context: ./api-gateway
+  #    dockerfile: Dockerfile
+  #  command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+  #  volumes:
+  #    - ./api-gateway/app:/app
+  #  ports:
+  #    - "8000:8000" # Porta principal da API
+  #  environment:
+  #    - MS_FUNCIONARIOS_URL=http://ms_funcionarios:8001
+  #    - MS_PRODUTOS_URL=http://ms_produtos:8000
+      # ... (etc.)
+
+  # Frontend
+  #frontend:
+  #  build:
+  #    context: ./frontend
+  #   dockerfile: Dockerfile
+  #  volumes:
+  #    - ./frontend:/app
+  #    - /app/node_modules
+  #  ports:
+  #    - "8080:8080" # Porta para acessar a aplicação no navegador
+
+volumes:
+  postgres_data_funcionarios:
+  postgres_data_produtos:
