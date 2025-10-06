@@ -51,3 +51,10 @@ def deletar_funcionario(id: int, db: Session = Depends(get_db)):
     if not funcionario_db:
         raise HTTPException(status_code=404, detail="Funcionário não encontrado")
     return {"detail": "Funcionário deletado"}
+
+@router.put("/endereco/{id}", response_model=FuncionarioResponse)
+def atualizar_endereco(id: int, endereco: Enderecos, db: Session = Depends(get_db)):
+    endereco_db = crud.atualizar_endereco(db, id, endereco)
+    if not endereco_db:
+        raise HTTPException(status_code=404, detail="Endereço não encontrado")
+    return endereco_db
