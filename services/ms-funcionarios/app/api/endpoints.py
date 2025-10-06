@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import List
-from schemas.schema import FuncionarioCreate, FuncionarioResponse
+from ..schemas.schema import FuncionarioCreate, FuncionarioResponse, EnderecoResponse, EnderecoCreate, FuncionarioUpdate
 from sqlalchemy.orm import Session,joinedload
-from models.models_funcionarios import Funcionarios, Enderecos
-from db.connection import get_db, SessionLocal
-from db import crud
+from ..models.models_funcionarios import Funcionarios, Enderecos
+from ..db.connection import get_db, SessionLocal
+from ..db import crud
 
 
 router = APIRouter(prefix="/funcionarios")
@@ -29,9 +29,10 @@ def criar_funcionario(funcionario: FuncionarioCreate, db: Session = Depends(get_
 
     dados_endereco  = funcionario.enderecos.model_dump()
     endereco_db = Enderecos(**dados_endereco)
-    funcionarios_db.enderecos.append(endereco_db)
-
-    funcionario_db = crud.criar_funcionario(db, funcionarios_db)
+    if endereco_db.funcionario_id == funcionarios_db.id:
+        endereco_db.funcionario_id = funcionarios_db.id
+        funcionarios_db.enderecos.append(endereco_db)
+        funcionario_db = crud.criar_funcionario(db, funcionarios_db)
 
     if not funcionario_db:
         raise HTTPException(status_code=400, detail="Erro ao criar funcionário")
@@ -39,7 +40,7 @@ def criar_funcionario(funcionario: FuncionarioCreate, db: Session = Depends(get_
   
 
 @router.put("/{id}", response_model=FuncionarioResponse)
-def atualizar_funcionario(id: int, funcionario: FuncionarioResponse, db: Session = Depends(get_db)):
+def atualizar_funcionario(id: int, funcionario: FuncionarioUpdate, db: Session = Depends(get_db)):
     funcionario_db = crud.atualizar_funcionario(db, id, funcionario)
     if not funcionario_db:
         raise HTTPException(status_code=404, detail="Funcionário não encontrado")
@@ -52,8 +53,9 @@ def deletar_funcionario(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Funcionário não encontrado")
     return {"detail": "Funcionário deletado"}
 
-@router.put("/endereco/{id}", response_model=FuncionarioResponse)
-def atualizar_endereco(id: int, endereco: Enderecos, db: Session = Depends(get_db)):
+@router.put("/endereco/{id}", response_model=EnderecoResponse)
+def atualizar_endereco(id: int, endereco: EnderecoCreate, db: Session = Depends(get_db)): # <--- CORRIGIDO
+    # A variável 'endereco' agora é um objeto Pydantic, não SQLAlchemy
     endereco_db = crud.atualizar_endereco(db, id, endereco)
     if not endereco_db:
         raise HTTPException(status_code=404, detail="Endereço não encontrado")
