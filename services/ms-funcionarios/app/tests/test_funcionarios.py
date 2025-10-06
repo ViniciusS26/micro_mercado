@@ -5,7 +5,7 @@ import pytest
 
 from app.main import app 
 
-from db.connection import get_db
+from ..db.connection import get_db
 
 from .database_test import TestingSessionLocal, setup_database
 
