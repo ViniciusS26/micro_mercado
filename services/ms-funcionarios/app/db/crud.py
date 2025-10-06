@@ -1,10 +1,14 @@
-from sqlalchemy.orm import Session
-from models.models_funcionarios import Funcionarios, Enderecos
-from schemas.schema import FuncionarioCreate, EnderecoCreate
+from sqlalchemy.orm import Session,joinedload
+from ..models.models_funcionarios import Funcionarios, Enderecos
+from ..schemas.schema import FuncionarioCreate, EnderecoCreate, FuncionarioUpdate
 
+
+""" def listar_todos_funcionarios(db: Session):
+    return db.query(Funcionarios).all() """
 
 def listar_todos_funcionarios(db: Session):
-    return db.query(Funcionarios).all()
+    return db.query(Funcionarios).options(joinedload(Funcionarios.enderecos)).all()
+
 
 def obter_funcionario(db: Session, id: int):
     return db.query(Funcionarios).filter(Funcionarios.id == id).first()
@@ -16,11 +20,16 @@ def obter_funcionarios_email(db: Session, email: str):
 def obter_funcionarios_cpf(db: Session, cpf: str):
     return db.query(Funcionarios).filter(Funcionarios.cpf == cpf).first()
 
-def ataulizar_funcionario(db: Session, id: int, funcionario: FuncionarioCreate):
+def atualizar_funcionario(db: Session, id: int, funcionario: FuncionarioUpdate):
     funcionario_db = db.query(Funcionarios).filter(Funcionarios.id == id).first()
     if funcionario_db:
-        for key, value in funcionario.dict().items():
+        # Usar model_dump(exclude_unset=True) cria um dicionário
+        # apenas com os dados que o cliente enviou na requisição.
+        update_data = funcionario.model_dump(exclude_unset=True)
+        
+        for key, value in update_data.items():
             setattr(funcionario_db, key, value)
+            
         db.commit()
         db.refresh(funcionario_db)
     return funcionario_db

@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Date,DateTime, ForeignKey, Integer, String, Float, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from db.database import Base
+from ..db.database import Base
 
 """ Classe que representa a tabela de funcionários no banco de dados. """
 class Funcionarios(Base):
