@@ -22,9 +22,9 @@ def cadastrar_produto(produto: schemas.ProdutoCreate, db: Session = Depends(conn
 def listar_produtos(db: Session = Depends(connection.get_db)):
     return querys.obter_produtos(db)
 
-@router.get("/{produto_id}", response_model=schemas.Produto)
-def ver_produto(produto_id: int, db: Session = Depends(connection.get_db)):
-    db_produto = querys.obter_produto_id(db, produto_id=produto_id)
+@router.get("/{id}", response_model=schemas.Produto)
+def ver_produto(id: int, db: Session = Depends(connection.get_db)):
+    db_produto = querys.obter_produto_id(db, id=id)
     if db_produto is None:
         raise HTTPException(status_code=404, detail="Produto não encontrado")
     return db_produto
@@ -36,9 +36,9 @@ def atualizar_produto(id: int, produto: schemas.ProdutoUpdate, db: Session = Dep
         raise HTTPException(status_code=404, detail="Produto não encontrado")
     return db_produto
 
-@router.delete("/{produto_id}", response_model=schemas.Produto)
-def deletar_produto(produto_id: int, db: Session = Depends(connection.get_db)):
-    db_produto = querys.deleta_produto(db, produto_id=produto_id)
+@router.delete("/{id}", response_model=schemas.Produto)
+def deletar_produto(id: int, db: Session = Depends(connection.get_db)):
+    db_produto = querys.deleta_produto(db, id=id)
     if db_produto is None:
         raise HTTPException(status_code=404, detail="Produto não encontrado")
     return db_produto
