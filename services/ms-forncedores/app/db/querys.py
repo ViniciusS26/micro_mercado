@@ -62,15 +62,22 @@ def deletar_fornecedor(db: Session, fornecedor_id: int):
     return db_fornecedor
 
 def criar_produto(db: Session, produto: ProdutoCreate):
-    db_produto = models.Produto(**produto.model_dump())
-    db.add(db_produto)
+    db.add(produto)
     db.commit()
-    db.refresh(db_produto)
-    return db_produto
+    db.refresh(produto)
+    return produto
 
+def buscar_produtos_por_fornecedor(db: Session, fornecedor_id: int):
+    return db.query(models.Produto).filter(models.Produto.fornecedor_id == fornecedor_id).all()
+
+def buscar_produto_nome(db: Session, nome: str):
+    return db.query(models.Produto).filter(models.Produto.nome.ilike(f"%{nome}%")).all()
+
+def buscar_produto_id(db: Session, produto_id: int):
+    return db.query(models.Produto).filter(models.Produto.id == produto_id).first()
 
 def atualizar_produto(db: Session, produto_id: int, produto: ProdutoCreate):
-    db_produto = db.query(models.Produto).filter(models.Produto.id == produto_id).first()
+    db_produto = buscar_produto_id(db, produto_id)
     
     if db_produto:
         update_data = produto.model_dump(exclude_unset=True)
@@ -88,8 +95,3 @@ def deletar_produto(db: Session, produto_id: int):
         db.commit()
     return db_produto
 
-def buscar_produtos_por_fornecedor(db: Session, fornecedor_id: int):
-    return db.query(models.Produto).filter(models.Produto.fornecedor_id == fornecedor_id).all()
-
-def buscar_produto_nome(db: Session, nome: str):
-    return db.query(models.Produto).filter(models.Produto.nome.ilike(f"%{nome}%")).all()
