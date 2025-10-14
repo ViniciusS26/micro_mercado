@@ -8,7 +8,7 @@ from ..db.connection import get_db, SessionLocal
 from ..db import crud
 
 
-router = APIRouter(prefix="/funcionarios")
+router = APIRouter(prefix="/funcionarios", tags=["funcionarios"])
 
 
 @router.get("/", response_model=List[FuncionarioResponse])
@@ -54,8 +54,8 @@ def deletar_funcionario(id: int, db: Session = Depends(get_db)):
     return {"detail": "Funcionário deletado"}
 
 @router.put("/endereco/{id}", response_model=EnderecoResponse)
-def atualizar_endereco(id: int, endereco: EnderecoCreate, db: Session = Depends(get_db)): # <--- CORRIGIDO
-    # A variável 'endereco' agora é um objeto Pydantic, não SQLAlchemy
+def atualizar_endereco(id: int, endereco: EnderecoCreate, db: Session = Depends(get_db)):
+
     endereco_db = crud.atualizar_endereco(db, id, endereco)
     if not endereco_db:
         raise HTTPException(status_code=404, detail="Endereço não encontrado")
