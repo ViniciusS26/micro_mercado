@@ -1,42 +1,51 @@
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
 from typing import List
-from ..schemas.schema import FuncionarioCreate, FuncionarioResponse, EnderecoResponse, EnderecoCreate, FuncionarioUpdate
-from sqlalchemy.orm import Session,joinedload
-from ..models.models_funcionarios import Funcionarios, Enderecos
-from ..db.connection import get_db, SessionLocal
-from ..db import crud
+from sqlalchemy.orm import Session
 
+from ..schemas.schema import (
+    FuncionarioCreate,
+    FuncionarioResponse,
+    EnderecoResponse,
+    EnderecoCreate,
+    FuncionarioUpdate,
+)
+from ..models.models_funcionarios import Funcionarios, Enderecos
+from ..db.connection import get_db
+from ..db import crud
 
 router = APIRouter(prefix="/funcionarios")
 
 
 @router.get("/", response_model=List[FuncionarioResponse])
 def obter_funcionario(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    funcionarios = crud.listar_todos_funcionarios(db)[skip: skip + limit]
+    funcionarios = crud.listar_todos_funcionarios(db)[skip : skip + limit]
     return funcionarios
 
 @router.post("/", response_model=FuncionarioResponse)
 def criar_funcionario(funcionario: FuncionarioCreate, db: Session = Depends(get_db)):
-
+    # validações únicas
     if crud.obter_funcionarios_email(db, funcionario.email):
         raise HTTPException(status_code=400, detail="Email já cadastrado")
     if crud.obter_funcionarios_cpf(db, funcionario.cpf):
         raise HTTPException(status_code=400, detail="CPF já cadastrado")
-    
-    dados_funcionario = funcionario.model_dump(exclude={"enderecos"})
-    funcionarios_db = Funcionarios(**dados_funcionario)
 
-    dados_endereco  = funcionario.enderecos.model_dump()
+    # monta entidades
+    dados_funcionario = funcionario.model_dump(exclude={"enderecos"}, exclude_none=True)
+    funcionario_db = Funcionarios(**dados_funcionario)
+
+    dados_endereco = funcionario.enderecos.model_dump(exclude_none=True)
     endereco_db = Enderecos(**dados_endereco)
-    if endereco_db.funcionario_id == funcionarios_db.id:
-        endereco_db.funcionario_id = funcionarios_db.id
-        funcionarios_db.enderecos.append(endereco_db)
-        funcionario_db = crud.criar_funcionario(db, funcionarios_db)
 
-    if not funcionario_db:
+    # VINCULA RELACIONAMENTO SEM DEPENDER DO ID JÁ EXISTIR
+    # (o relacionamento vai setar funcionario_id ao persistir)
+    funcionario_db.enderecos.append(endereco_db)
+
+    # persiste tudo numa tacada
+    funcionario_persistido = crud.criar_funcionario(db, funcionario_db)
+    if not funcionario_persistido:
         raise HTTPException(status_code=400, detail="Erro ao criar funcionário")
-    return funcionario_db
+
+    return funcionario_persistido
   
 
 @router.put("/{id}", response_model=FuncionarioResponse)
@@ -54,8 +63,8 @@ def deletar_funcionario(id: int, db: Session = Depends(get_db)):
     return {"detail": "Funcionário deletado"}
 
 @router.put("/endereco/{id}", response_model=EnderecoResponse)
-def atualizar_endereco(id: int, endereco: EnderecoCreate, db: Session = Depends(get_db)): # <--- CORRIGIDO
-    # A variável 'endereco' agora é um objeto Pydantic, não SQLAlchemy
+def atualizar_endereco(id: int, endereco: EnderecoCreate, db: Session = Depends(get_db)):
+    # Atualiza campos do endereço. O schema exige funcionario_id/logradouro etc.
     endereco_db = crud.atualizar_endereco(db, id, endereco)
     if not endereco_db:
         raise HTTPException(status_code=404, detail="Endereço não encontrado")
