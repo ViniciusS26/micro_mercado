@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-NOVA_PORTA = "5435" # Porta definida para o PostgreSQL
+NOVA_PORTA = "5432" # Porta definida para o PostgreSQL
 
 # Define a URL do banco de dados para db_relatorios na porta 5435
 SQLALCHEMY_DATABASE_URL = os.getenv(
