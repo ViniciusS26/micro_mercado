@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
+from ..core import security
 
 from ..schemas.schema import (
     FuncionarioCreate,
@@ -15,6 +16,24 @@ from ..db import crud
 
 router = APIRouter(prefix="/funcionarios")
 
+
+"""Criar rota de login para funcionários de acordo o cpf e senha  """
+@router.post("/auth", response_model=security.FuncionarioTokken)
+def login_funcionario(cpf: str, senha: str, db: Session = Depends(get_db)):
+    funcionario = db.query(Funcionarios).filter(Funcionarios.cpf == cpf).first()
+    if not funcionario:
+        raise HTTPException(status_code=400, detail="CPF ou senha inválidos")
+    if not security.verify_password(senha, funcionario.senha):
+        raise HTTPException(status_code=400, detail="CPF ou senha inválidos")
+
+    token_data = {
+        "id": funcionario.id,
+        "nome": funcionario.nome,
+        "cpf": funcionario.cpf,
+        "cargo": funcionario.cargo,
+    }
+   
+    return token_data
 
 @router.get("/", response_model=List[FuncionarioResponse])
 def obter_funcionario(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):

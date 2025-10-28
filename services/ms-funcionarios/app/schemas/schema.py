@@ -4,14 +4,6 @@ from datetime import date, datetime
 from validate_docbr import CPF
 from ..core import security
 
-class FuncionarioTokken(BaseModel):
-    id: int
-    nome: str
-    cpf: str
-    cargo: str
-
-    model_config = ConfigDict(from_attributes=True)
-
 
 
 class EnderecoCreate(BaseModel):
