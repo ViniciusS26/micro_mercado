@@ -9,6 +9,8 @@ from ..db.connection import get_db
 
 router = APIRouter(prefix="/vendas")
 
+
+
 @router.post("/", response_model=schemas.Venda)
 def criar_nova_venda(venda: schemas.VendaCreate, db: Session = Depends(get_db)):
     """

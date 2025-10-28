@@ -76,6 +76,10 @@ def buscar_produto_nome(db: Session, nome: str):
 def buscar_produto_id(db: Session, produto_id: int):
     return db.query(models.Produto).filter(models.Produto.id == produto_id).first()
 
+def obter_produtos(db: Session):
+    return db.query(models.Produto).all()
+
+
 def atualizar_produto(db: Session, produto_id: int, produto: ProdutoCreate):
     db_produto = buscar_produto_id(db, produto_id)
     

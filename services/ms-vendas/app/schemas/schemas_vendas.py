@@ -22,6 +22,9 @@ class ItemVenda(ItemVendaBase):
 
 class VendaBase(BaseModel):
     funcionario_id: int
+    nome_funcionario:str
+    cpf: str
+    cargo: str
 
 class VendaCreate(VendaBase):
     itens: List[ItemVendaCreate]

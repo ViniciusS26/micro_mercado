@@ -29,7 +29,7 @@ class ProdutoCreate(ProdutoBase):
 
 class Produto(ProdutoBase):
     id: int
-    fornecedor_id: int
+    fornecedor_id: Optional[int] = None 
     data_criacao: Optional[datetime]
     data_atualizacao: Optional[datetime]
 
