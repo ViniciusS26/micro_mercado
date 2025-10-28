@@ -129,6 +129,17 @@ async def _forward_request(
 #   ROTAS (ESPELHO)
 # =======================
 
+@router.post("/auth", summary="Autenticar funcionário")
+async def autenticar_funcionario_proxy(
+    request: Request,
+    cpf: str = Query(..., description="CPF do funcionário"),
+    senha: str = Query(..., description="Senha do funcionário"),
+):
+    extra_params = {"cpf": cpf, "senha": senha}
+    return await _forward_request(request, "auth", extra_params=extra_params)
+
+
+
 @router.get("/", summary="Listar funcionários")
 async def listar_funcionarios_proxy(
     request: Request,
