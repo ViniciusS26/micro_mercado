@@ -13,27 +13,16 @@ from ..models import models_produtos
 router = APIRouter(prefix="/produtos")
 
 
-def pegar_produto_fornecedor():
-    url_fornecedores = f"http://ms-fornecedores/api/v1/fornecedores/produtos"
-    with httpx.Client() as client:
-        response = client.get(url_fornecedores)
-        response.raise_for_status()
-        return response.json()
-
-
-
 @router.post("/", response_model=schemas.Produto)
 def cadastrar_produto(produto: schemas.ProdutoCreate, db: Session = Depends(connection.get_db)):
     #urls para acessar ms-fornecedores para validar
-
+   
     dados_produto = produto.model_dump()
     produto_data = models_produtos.Produto(**dados_produto)
     return querys.criar_produto(db=db, produto=produto_data)
 
 @router.get("/", response_model=List[schemas.Produto])
 def listar_produtos(db: Session = Depends(connection.get_db)):
-    produtos_fornecedor =  pegar_produto_fornecedor()
-    print(produtos_fornecedor.json())
     return querys.obter_produtos(db)
 
 @router.get("/{id}", response_model=schemas.Produto)
