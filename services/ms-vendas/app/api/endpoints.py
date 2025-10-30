@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+import httpx
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import date
@@ -7,15 +8,52 @@ from ..schemas import schemas_vendas as schemas
 from ..db import querys
 from ..db.connection import get_db
 
-router = APIRouter(prefix="/vendas")
+router = APIRouter(prefix="/vendas", tags=["Vendas"])
 
 
 
-@router.post("/", response_model=schemas.Venda)
-def criar_nova_venda(venda: schemas.VendaCreate, db: Session = Depends(get_db)):
+async def buscar_produtos_service(tituloProduto: str):
+    """função para acessar o serviço de produtos para pegar os produtos e salvar nos itens da venda"""
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(
+                f"http://localhost:8004/api/v1/produtos/{tituloProduto}"
+            )
+            if response.status_code == 200:
+                return response.json()
+            elif response.status_code == 404:
+                return httpx.Response(status_code=404)
+        except httpx.HTTPStatusError as exec:
+            raise HTTPException(status_code=503, detail=f"Erro ao contactar serviço de produtos: {exec}")
+        except httpx.RequestError as exc:
+            raise HTTPException(status_code=503, detail=f"Erro ao contactar serviço de produtos: {exc}")
+
+@router.post("/{titulo_produto}", response_model=schemas.Venda)
+def criar_nova_venda(titulo_produto: str, venda: schemas.VendaCreate, db: Session = Depends(get_db)):
     """
-    Cria uma nova venda com uma lista de produtos.
+    Cria uma nova venda com uma lista de produtos, antes de criar venda, busca os produtos e adicionar na tabela item de venda.
+    Salvando apenas:
+    "cliente_id": 0,
+    "itens": [
+        {
+        "produto_id": 0,
+        "qtd": 1,
+        "preco_unitario": 0,
+        "additionalProp1": {}
+        }
+    ],
     """
+
+
+
+ 
+    produto_info = buscar_produtos_service(titulo_produto)
+
+    if produto_info is None:
+        raise HTTPException(status_code=404, detail=f"Produto com título '{titulo_produto}' não encontrado no serviço de produtos.")
+
+   
     return querys.criar_venda(db=db, venda=venda)
 
 

@@ -151,6 +151,18 @@ async def listar_produtos_proxy(request: Request):
     """
     return await _forward_request(request, "")
 
+@router.get("/{titulo}", summary="Listar produtos por título")
+async def listar_produtos_por_titulo_proxy(
+    request: Request,
+    titulo: str = Path(..., description="Título do produto"),
+):
+    """
+    GET /api/v1/produtos/
+    Lista todos os produtos.
+    """
+    return await _forward_request(request, f"/{titulo}")
+
+
 @router.get("/{id:int}", summary="Ver produto por ID")
 async def ver_produto_proxy(
     request: Request,

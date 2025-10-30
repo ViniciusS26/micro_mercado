@@ -21,6 +21,13 @@ def cadastrar_produto(produto: schemas.ProdutoCreate, db: Session = Depends(conn
     produto_data = models_produtos.Produto(**dados_produto)
     return querys.criar_produto(db=db, produto=produto_data)
 
+@router.get("/{titulo}", response_model=schemas.Produto)
+def pegar_produto_por_titulo(titulo: str, db: Session = Depends(connection.get_db)):
+    db_produto = querys.obter_produto_por_titulo(db, titulo=titulo)
+    if db_produto is None:
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
+    return db_produto
+
 @router.get("/", response_model=List[schemas.Produto])
 def listar_produtos(db: Session = Depends(connection.get_db)):
     return querys.obter_produtos(db)
