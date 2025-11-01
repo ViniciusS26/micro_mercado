@@ -4,29 +4,36 @@ from datetime import date, timedelta
 from ..models import models_vendas as models
 from ..schemas import schemas_vendas as schemas
 
+from typing import Any
+
+
 def criar_venda(db: Session, venda: schemas.VendaCreate):
     """
-    Cria uma nova venda e seus itens no banco de dados.
+    Cria uma nova venda com seus itens associados.
     """
-    valor_total_calculado = sum(item.quantidade * item.preco_unitario for item in venda.itens)
+    
+    # 1. Calcula o valor total (não vem no schema VendaCreate)
+    valor_total = sum(item.quantidade * item.preco_unitario for item in venda.itens)
 
+    # 2. Cria os objetos ItemVenda (models) a partir dos schemas
+    db_itens = [
+        models.ItemVenda(
+            produto_id=item.produto_id,
+            quantidade=item.quantidade,
+            preco_unitario=item.preco_unitario
+        ) for item in venda.itens
+    ]
+
+    # 3. Cria o objeto Venda (model) principal
     db_venda = models.Venda(
-        funcionario_id=venda.funcionario_id,
-        valor_total=valor_total_calculado
+        **venda.model_dump(exclude={"itens"}),
+        valor_total=valor_total,
+        itens=db_itens  
     )
-
     db.add(db_venda)
-    db.flush()
-
-    for item_schema in venda.itens:
-        db_item = models.ItemVenda(
-            **item_schema.model_dump(),
-            venda_id=db_venda.id
-        )
-        db.add(db_item)
-
     db.commit()
     db.refresh(db_venda)
+    
     return db_venda
 
 
