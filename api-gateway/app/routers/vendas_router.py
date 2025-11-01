@@ -13,6 +13,12 @@ router = APIRouter()
 #   MODELOS P/ DOCS
 # =======================
 
+class NovaVendaCreate(BaseModel):
+    model_config = ConfigDict(extra="allow")  # permite campos extras sem quebrar
+    titulo_produto: str = Field(..., description="Título do produto a ser vendido")
+    id_funcionario: int = Field(..., description="ID do funcionário que está vendendo")
+
+
 class ItemCreate(BaseModel):
     model_config = ConfigDict(extra="allow")  # permite campos extras sem quebrar
     produto_id: int = Field(..., description="ID do produto")
@@ -135,17 +141,35 @@ async def _forward_request(
 #   ROTAS (ESPELHO)
 # =======================
 
+@router.get("/produtos/{tituloProduto}", summary="Obter produto por título")
+async def obter_produto_por_titulo_proxy(
+    request: Request,
+    tituloProduto: str = Path(..., description="Título do produto"),
+):
+    """
+    GET /api/v1/vendas/produtos/{tituloProduto}
+    Obtém produto por título via ms-produtos (espelho do ms-vendas).
+    """
+    return await _forward_request(request, f"produtos/{tituloProduto}")
+
+
 @router.post("/", summary="Criar venda")
 async def criar_venda_proxy(
     request: Request,
-    body: VendaCreate = Body(...),   # <- obrigatório e tipado (sem mypy error)
+    body: NovaVendaCreate = Body(...)
 ):
     """
     POST /api/v1/vendas/
     Cria uma nova venda (espelho do ms-vendas).
     """
-    json_body = body.model_dump(exclude_none=True)
-    return await _forward_request(request, "", json_body=json_body)
+  
+    json_body = body.model_dump(mode="json", exclude_none=True)
+    return await _forward_request(
+        request,
+        "",
+        json_body=json_body
+    )
+
 
 @router.get("/", summary="Listar vendas")
 async def ler_vendas_proxy(
