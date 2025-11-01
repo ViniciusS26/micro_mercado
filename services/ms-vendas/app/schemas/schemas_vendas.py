@@ -67,3 +67,20 @@ class RelatorioFuncionario(BaseModel):
 
 class VendaUpdate(VendaBase):
     itens: List[ItemVendaCreate]
+
+
+
+class Produto(BaseModel):
+    id: int
+    titulo: str
+    descricao: Optional[str] = None
+    preco: float
+    model_config = ConfigDict(from_attributes=True)
+
+
+class Funcionario(BaseModel):
+    id: int
+    nome: str
+    cpf: str
+    cargo: str
+    model_config = ConfigDict(from_attributes=True)
