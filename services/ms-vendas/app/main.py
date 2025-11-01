@@ -5,7 +5,11 @@ from .db.database import engine, Base
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(
+    title="API VENDAS - Sistema SGM",
+    description="Ponto de entrada único para os microsserviços VENDAS.",
+    version="1.0.0"
+)
 
 app.add_middleware(
     CORSMiddleware,

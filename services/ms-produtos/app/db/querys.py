@@ -17,6 +17,11 @@ def obter_produtos(db: Session):
 def obter_produto_id(db: Session, produto_id: int):
     return db.query(models_produtos.Produto).filter(models_produtos.Produto.id == produto_id).first()
 
+
+def obter_produto_por_titulo(db: Session, titulo: str):
+    return db.query(models_produtos.Produto).filter(models_produtos.Produto.titulo == titulo).first()
+
+
 def atualiza_produto(db: Session, id: int, produto):
     db_produto = db.query(models_produtos.Produto).filter(models_produtos.Produto.id == id).first()
     if db_produto:

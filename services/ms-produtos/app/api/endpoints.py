@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Header, Path
+import httpx
 from pydantic import BaseModel
 from typing import List, Optional
 from sqlalchemy.orm import Session
@@ -11,11 +12,21 @@ from ..models import models_produtos
 
 router = APIRouter(prefix="/produtos")
 
+
 @router.post("/", response_model=schemas.Produto)
 def cadastrar_produto(produto: schemas.ProdutoCreate, db: Session = Depends(connection.get_db)):
+    #urls para acessar ms-fornecedores para validar
+   
     dados_produto = produto.model_dump()
     produto_data = models_produtos.Produto(**dados_produto)
     return querys.criar_produto(db=db, produto=produto_data)
+
+@router.get("/{titulo}", response_model=schemas.Produto)
+def pegar_produto_por_titulo(titulo: str, db: Session = Depends(connection.get_db)):
+    db_produto = querys.obter_produto_por_titulo(db, titulo=titulo)
+    if db_produto is None:
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
+    return db_produto
 
 @router.get("/", response_model=List[schemas.Produto])
 def listar_produtos(db: Session = Depends(connection.get_db)):
@@ -24,6 +35,7 @@ def listar_produtos(db: Session = Depends(connection.get_db)):
 @router.get("/{id}", response_model=schemas.Produto)
 def ver_produto(id: int, db: Session = Depends(connection.get_db)):
     # 🔧 ajuste: usar keyword correta esperada por querys.obter_produto_id
+
     db_produto = querys.obter_produto_id(db, produto_id=id)
     if db_produto is None:
         raise HTTPException(status_code=404, detail="Produto não encontrado")

@@ -10,7 +10,9 @@ class Venda(Base):
     data_venda = Column(DateTime(timezone=True), server_default=func.now())
     valor_total = Column(Float, nullable=False)
     funcionario_id = Column(Integer, nullable=False) # ID do funcionário do ms-funcionarios
-
+    nome_funcionario = Column(String, nullable=False)
+    cpf = Column(String, nullable=False)
+    cargo = Column(String, nullable=False)
     itens = relationship("ItemVenda", back_populates="venda", cascade="all, delete-orphan")
 
 class ItemVenda(Base):

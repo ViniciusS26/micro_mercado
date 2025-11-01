@@ -4,7 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 # Importa todos os routers que criamos
 from .routers import (
     funcionarios_router,
-    fornecedores_router,
     produtos_router,
     vendas_router,
     relatorios_router
@@ -33,11 +32,7 @@ app.include_router(
     prefix="/api/v1/funcionarios", 
     tags=["Funcionários"]
 )
-app.include_router(
-    fornecedores_router.router, 
-    prefix="/api/v1/fornecedores", 
-    tags=["Fornecedores"]
-)
+
 app.include_router(
     produtos_router.router, 
     prefix="/api/v1/produtos", 

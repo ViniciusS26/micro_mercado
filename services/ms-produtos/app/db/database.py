@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 SQLALCHEMY_DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://postgres:root@localhost:5435/db_produtos" # url bd local
+    "postgresql://postgres:root@localhost:5432/db_produtos" # url bd local
     #"postgresql://postgres:vini123@db_funcionarios/funcionarios_db" url de produção 
 )
 
