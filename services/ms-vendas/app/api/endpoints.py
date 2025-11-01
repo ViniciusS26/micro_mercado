@@ -59,7 +59,7 @@ async def obter_produto_por_titulo(tituloProduto: str):
         raise HTTPException(status_code=404, detail="Produto não encontrado no serviço de produtos")
     return produto_response
 
-@router.post("/{tituloProduto}", response_model=schemas.Venda)
+@router.post("/", response_model=schemas.Venda)
 async def criar_nova_venda(tituloProduto: str, id_funcionario: int, db: Session = Depends(get_db)):
     """Cria uma nova venda, validando produtos via ms-produtos"""
     produto_response = await buscar_produtos_service(tituloProduto)
@@ -80,7 +80,7 @@ async def criar_nova_venda(tituloProduto: str, id_funcionario: int, db: Session 
     # 2. Cria o schema do ItemVenda (o item que foi vendido)
     item_para_venda = schemas.ItemVendaCreate(
         produto_id=produto_schema.id,
-        quantidade=1,  # Você definiu como 1 no seu código
+        quantidade=1,  
         preco_unitario=produto_schema.preco
     )
 
@@ -91,7 +91,7 @@ async def criar_nova_venda(tituloProduto: str, id_funcionario: int, db: Session 
             nome_funcionario=funcionario_response.get("nome", "Nome não encontrado"),
             cpf=funcionario_response.get("cpf", "CPF não encontrado"),
             cargo=funcionario_response.get("cargo", "Cargo não encontrado"),
-            itens=[item_para_venda]  # <-- AQUI ESTÁ A MUDANÇA PRINCIPAL
+            itens=[item_para_venda]  
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao criar schema da Venda: {e}")
