@@ -18,7 +18,7 @@ async def buscar_produtos_service(tituloProduto: str):
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(
-                f"http://localhost:8004/api/v1/produtos/{tituloProduto}"
+                f"http://localhost:8002/api/v1/produtos/{tituloProduto}"
             )
             if response.status_code == 200:
                 return response.json()
@@ -29,32 +29,76 @@ async def buscar_produtos_service(tituloProduto: str):
         except httpx.RequestError as exc:
             raise HTTPException(status_code=503, detail=f"Erro ao contactar serviço de produtos: {exc}")
 
-@router.post("/{titulo_produto}", response_model=schemas.Venda)
-def criar_nova_venda(titulo_produto: str, venda: schemas.VendaCreate, db: Session = Depends(get_db)):
-    """
-    Cria uma nova venda com uma lista de produtos, antes de criar venda, busca os produtos e adicionar na tabela item de venda.
-    Salvando apenas:
-    "cliente_id": 0,
-    "itens": [
-        {
-        "produto_id": 0,
-        "qtd": 1,
-        "preco_unitario": 0,
-        "additionalProp1": {}
-        }
-    ],
-    """
 
 
 
- 
-    produto_info = buscar_produtos_service(titulo_produto)
+async def buscar_funcionario_service(id_funcionario:int):
+    """função para acessar o serviço de funcionários para pegar os funcionários e salvar na venda"""
 
-    if produto_info is None:
-        raise HTTPException(status_code=404, detail=f"Produto com título '{titulo_produto}' não encontrado no serviço de produtos.")
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(
+                f"http://localhost:8001/api/v1/funcionarios/{id_funcionario}"
+            )
+            if response.status_code == 200:
+                return response.json()
+            elif response.status_code == 404:
+                return httpx.Response(status_code=404)
+        except httpx.HTTPStatusError as exec:
+            raise HTTPException(status_code=503, detail=f"Erro ao contactar serviço de funcionários: {exec}")
+        except httpx.RequestError as exc:
+            raise HTTPException(status_code=503, detail=f"Erro ao contactar serviço de funcionários: {exc}")
 
-   
-    return querys.criar_venda(db=db, venda=venda)
+
+
+@router.get("/produtos/{tituloProduto}", response_model=schemas.Produto)
+async def obter_produto_por_titulo(tituloProduto: str):
+    """Rota para obter produto por título via ms-produtos"""
+    produto_response = await buscar_produtos_service(tituloProduto)
+    if isinstance(produto_response, httpx.Response) and produto_response.status_code == 404:
+        raise HTTPException(status_code=404, detail="Produto não encontrado no serviço de produtos")
+    return produto_response
+
+@router.post("/{tituloProduto}", response_model=schemas.Venda)
+async def criar_nova_venda(tituloProduto: str, id_funcionario: int, db: Session = Depends(get_db)):
+    """Cria uma nova venda, validando produtos via ms-produtos"""
+    produto_response = await buscar_produtos_service(tituloProduto)
+    funcionario_response = await buscar_funcionario_service(id_funcionario)
+
+    if isinstance(produto_response, httpx.Response) and produto_response.status_code == 404:
+        raise HTTPException(status_code=404, detail="Produto não encontrado no serviço de produtos")
+
+    if isinstance(funcionario_response, httpx.Response) and funcionario_response.status_code == 404:
+        raise HTTPException(status_code=404, detail="Funcionário não encontrado no serviço de funcionários")
+    
+    # 1. Mapeia a resposta do produto para o schema Produto
+    try:
+        produto_schema = schemas.Produto(**produto_response)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Resposta inesperada do serviço de produtos: {e}")
+
+    # 2. Cria o schema do ItemVenda (o item que foi vendido)
+    item_para_venda = schemas.ItemVendaCreate(
+        produto_id=produto_schema.id,
+        quantidade=1,  # Você definiu como 1 no seu código
+        preco_unitario=produto_schema.preco
+    )
+
+    # 3. Cria o schema da VendaCreate, já incluindo o item na lista "itens"
+    try:
+        venda_schema_create = schemas.VendaCreate(
+            funcionario_id=funcionario_response["id"],
+            nome_funcionario=funcionario_response.get("nome", "Nome não encontrado"),
+            cpf=funcionario_response.get("cpf", "CPF não encontrado"),
+            cargo=funcionario_response.get("cargo", "Cargo não encontrado"),
+            itens=[item_para_venda]  # <-- AQUI ESTÁ A MUDANÇA PRINCIPAL
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao criar schema da Venda: {e}")
+
+    # 4. Passa o schema da Venda (que agora contém os itens) para a função de query
+    return querys.criar_venda(db=db, venda=venda_schema_create)
+
 
 
 @router.get("/", response_model=schemas.PaginaVendas)
