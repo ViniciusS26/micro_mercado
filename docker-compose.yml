@@ -25,50 +25,102 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:vini123@db_funcionarios/funcionarios_db
 
-  # db_produtos:
-  #   image: postgres:14-alpine
-  #   volumes:
-  #     - postgres_data_produtos:/var/lib/postgresql/data/
-  #   environment:
-  #     - POSTGRES_USER=user
-  #    - POSTGRES_PASSWORD=password
-  #    - POSTGRES_DB=produtos_db
-  #  ports:
-  #    - "5433:5433"
+  db_produtos:
+     image: postgres:14-alpine
+     volumes:
+       - postgres_data_produtos:/var/lib/postgresql/data/
+     environment:
+       - POSTGRES_USER=user
+       - POSTGRES_PASSWORD=password
+       - POSTGRES_DB=produtos_db
+    
+     ports:
+      - "5433:5433"
 
-  # ... (definir um 'db_' para cada microsserviço)
+
 
   # Microsserviços
   
-#  ms_produtos:
-#    build:
-#      context: ./services/ms-produtos
-#      dockerfile: Dockerfile
-#    command: uvicorn app.main:app --host 0.0.0.0 --port 8002 --reload
-#    volumes:
-#      - ./services/ms-produtos/app:/app
-#    ports:
-#      - "8002:8002"
-#    depends_on:
-#      - db_produtos
-#    environment:
-#      - DATABASE_URL=postgresql://user:password@db_produtos/produtos_db
+  ms_produtos:
+    build:
+      context: ./services/ms-produtos
+      dockerfile: Dockerfile
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8002 --reload
+    volumes:
+      - ./services/ms-produtos/app:/app
+    ports:
+      - "8002:8002"
+    depends_on:
+      - db_produtos
+    environment:
+      - DATABASE_URL=postgresql://user:password@db_produtos/produtos_db
 
   # ... (definir um 'ms_' para cada microsserviço)
 
+  db_vendas:
+    image: postgres:14-alpine
+    volumes:
+      - postgres_data_vendas:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=vini123
+      - POSTGRES_DB=vendas_db
+    ports:
+      - "5434:5432"
+
+  ms_vendas:
+    build:
+      context: ./services/ms-vendas
+      dockerfile: Dockerfile
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8004 --reload
+    volumes:
+      - ./services/ms-vendas/app:/app
+    ports:
+      - "8004:8004"
+    depends_on:
+      - db_vendas
+    environment:
+      - DATABASE_URL=postgresql://postgres:vini123@db_vendas/vendas_db
+    
+
+  db_relatorios:
+    image: postgres:14-alpine
+    volumes:
+      - postgres_data_relatorios:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=vini123
+      - POSTGRES_DB=relatorios_db
+    ports:
+      - "5435:5432"
+    
+  ms_relatorios:
+    build:
+      context: ./services/ms-relatorios
+      dockerfile: Dockerfile
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8003 --reload
+    volumes:
+      - ./services/ms-relatorios/app:/app
+    ports:
+      - "8003:8003"
+    depends_on:
+      - db_relatorios
+
   # API Gateway
-  #api_gateway:
-  #  build:
-  #    context: ./api-gateway
-  #    dockerfile: Dockerfile
-  #  command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-  #  volumes:
-  #    - ./api-gateway/app:/app
-  #  ports:
-  #    - "8000:8000" # Porta principal da API
-  #  environment:
-  #    - MS_FUNCIONARIOS_URL=http://ms_funcionarios:8001
-  #    - MS_PRODUTOS_URL=http://ms_produtos:8000
+  api_gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./api-gateway/app:/app
+    ports:
+      - "8000:8000" # Porta principal da API
+    environment:
+      - MS_FUNCIONARIOS_URL=http://ms_funcionarios:8001/api/v1/funcionarios
+      - MS_PRODUTOS_URL=http://ms_produtos:8002/api/v1/produtos
+      - MS_VENDAS_URL=http://ms_vendas:8004/api/v1/vendas
+      - MS_RELATORIOS_URL=http://ms_relatorios:8003/v1/relatorios
       # ... (etc.)
 
   # Frontend
@@ -85,3 +137,6 @@ services:
 volumes:
   postgres_data_funcionarios:
   postgres_data_produtos:
+  postgres_data_vendas:
+  postgres_data_relatorios:
+  
