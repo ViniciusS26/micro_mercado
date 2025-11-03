@@ -1,8 +1,5 @@
 from sqlalchemy.orm import Session, joinedload
-from ..models import models_produtos
-from sqlalchemy.exc import IntegrityError
-from ..schemas import schemas
-from sqlalchemy import func
+from models import models_produtos
 
 
 def criar_produto(db: Session, produto):
