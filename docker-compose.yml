@@ -25,35 +25,35 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:vini123@db_funcionarios/funcionarios_db
 
-#  db_produtos:
-#     image: postgres:14-alpine
-#     volumes:
-#       - postgres_data_produtos:/var/lib/postgresql/data/
-#     environment:
-#       - POSTGRES_USER=user
-#       - POSTGRES_PASSWORD=password
-#       - POSTGRES_DB=produtos_db
-#    
-#     ports:
-#      - "5433:5433"
+  db_produtos:
+     image: postgres:14-alpine
+     volumes:
+       - postgres_produtos:/var/lib/postgresql/data/
+     environment:
+       - POSTGRES_USER=user
+       - POSTGRES_PASSWORD=password
+       - POSTGRES_DB=produtos_db
+    
+     ports:
+       - "5433:5432"
 
 
 
   # Microsserviços
   
-#  ms_produtos:
-#    build:
-#      context: ./services/ms-produtos
-#      dockerfile: Dockerfile
-#    command: uvicorn app.main:app --host 0.0.0.0 --port 8002 --reload
-#    volumes:
-#      - ./services/ms-produtos/app:/app
-#    ports:
-#      - "8002:8002"
-#    depends_on:
-#      - db_produtos
-#    environment:
-#      - DATABASE_URL=postgresql://user:password@db_produtos/produtos_db
+  ms_produtos:
+    build:
+      context: ./services/ms-produtos
+      dockerfile: Dockerfile
+    command: uvicorn main:app --host 0.0.0.0 --port 8002 --reload
+    volumes:
+      - ./services/ms-produtos/app:/app
+    ports:
+      - "8002:8002"
+    depends_on:
+      - db_produtos
+    environment:
+      - DATABASE_URL=postgresql://user:password@db_produtos/produtos_db
 
   # ... (definir um 'ms_' para cada microsserviço)
 
@@ -136,6 +136,6 @@ services:
 
 volumes:
   postgres_funcionarios:
-#  produtos:
+  postgres_produtos:
 #  vendas:
 #  relatorios:
