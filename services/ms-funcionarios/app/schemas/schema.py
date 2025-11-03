@@ -2,7 +2,7 @@ from pydantic import BaseModel,field_validator, ConfigDict
 from typing import List, Optional
 from datetime import date, datetime
 from validate_docbr import CPF
-from ..core import security
+from core import security
 
 
 
@@ -31,6 +31,18 @@ class EnderecoResponse(BaseModel):
     cep: str
 
     model_config = ConfigDict(from_attributes=True) 
+
+
+class EnderecoUpdate(BaseModel):
+    logradouro: Optional[str] = None
+    numero: Optional[str] = None
+    complemento: Optional[str] = None
+    bairro: Optional[str] = None
+    cidade: Optional[str] = None
+    estado: Optional[str] = None
+    cep: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
 class FuncionarioCreate(BaseModel):
     nome: str
     cpf: str

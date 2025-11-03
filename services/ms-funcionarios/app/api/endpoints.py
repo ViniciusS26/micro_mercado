@@ -1,18 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
-from ..core import security
+from core import security
 
-from ..schemas.schema import (
+from schemas.schema import (
     FuncionarioCreate,
     FuncionarioResponse,
     EnderecoResponse,
-    EnderecoCreate,
+    EnderecoUpdate,
     FuncionarioUpdate,
 )
-from ..models.models_funcionarios import Funcionarios, Enderecos
-from ..db.connection import get_db
-from ..db import crud
+from models.models_funcionarios import Funcionarios, Enderecos
+from db.connection import get_db
+from db import crud
 
 router = APIRouter(prefix="/funcionarios")
 
@@ -91,7 +91,7 @@ def deletar_funcionario(id: int, db: Session = Depends(get_db)):
     return {"detail": "Funcionário deletado"}
 
 @router.put("/endereco/{id}", response_model=EnderecoResponse)
-def atualizar_endereco(id: int, endereco: EnderecoCreate, db: Session = Depends(get_db)):
+def atualizar_endereco(id: int, endereco: EnderecoUpdate, db: Session = Depends(get_db)):
     """ Atualiza os dados de um endereço existente """
     endereco_db = crud.atualizar_endereco(db, id, endereco)
     if not endereco_db:

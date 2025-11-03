@@ -12,8 +12,8 @@ from jwt import encode, decode, DecodeError
 from fastapi.security import OAuth2PasswordBearer
 from http import HTTPStatus
 from pydantic import BaseModel, ConfigDict
-from ..core.config import settings
-from ..db.connection import get_db  as get_session
+from core.config import settings
+from db.connection import get_db  as get_session
 
 
 

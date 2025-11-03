@@ -3,9 +3,9 @@ import httpx
 from pydantic import BaseModel
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from ..schemas import schemas
-from ..db import querys, connection
-from ..models import models_produtos
+from schemas import schemas
+from db import querys, connection
+from models import models_produtos
 
 
 
