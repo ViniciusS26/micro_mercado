@@ -32,26 +32,27 @@ def pegar_produto_por_titulo(titulo: str, db: Session = Depends(connection.get_d
 def listar_produtos(db: Session = Depends(connection.get_db)):
     return querys.obter_produtos(db)
 
-@router.get("/{id}", response_model=schemas.Produto)
-def ver_produto(id: int, db: Session = Depends(connection.get_db)):
+@router.get("/{id_produto}", response_model=schemas.Produto)
+def ver_produto(id_produto: int, db: Session = Depends(connection.get_db)):
     # 🔧 ajuste: usar keyword correta esperada por querys.obter_produto_id
 
-    db_produto = querys.obter_produto_id(db, produto_id=id)
+    db_produto = querys.obter_produto_id(db, id_produto=id_produto)
+    print(db_produto)
     if db_produto is None:
         raise HTTPException(status_code=404, detail="Produto não encontrado")
     return db_produto
 
-@router.put("/{id}", response_model=schemas.Produto)
-def atualizar_produto(id: int, produto: schemas.ProdutoUpdate, db: Session = Depends(connection.get_db)):
-    db_produto = querys.atualiza_produto(db, id=id, produto=produto)
+@router.put("/{id_produto}", response_model=schemas.Produto)
+def atualizar_produto(id_produto: int, produto: schemas.ProdutoUpdate, db: Session = Depends(connection.get_db)):
+    db_produto = querys.atualiza_produto(db, id=id_produto, produto=produto)
     if db_produto is None:
-        raise HTTPException(statusocode=404, detail="Produto não encontrado")
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
     return db_produto
 
-@router.delete("/{id}", response_model=schemas.Produto)
-def deletar_produto(id: int, db: Session = Depends(connection.get_db)):
+@router.delete("/{id_produto}", response_model=schemas.Produto)
+def deletar_produto(id_produto: int, db: Session = Depends(connection.get_db)):
     # 🔧 ajuste: usar keyword correta esperada por querys.deleta_produto
-    db_produto = querys.deleta_produto(db, produto_id=id)
+    db_produto = querys.deleta_produto(db, produto_id=id_produto)
     if db_produto is None:
         raise HTTPException(status_code=404, detail="Produto não encontrado")
     return db_produto

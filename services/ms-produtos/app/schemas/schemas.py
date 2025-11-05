@@ -3,6 +3,7 @@ from typing import List, Optional
 from datetime import date, datetime
 
 class ProdutoBase(BaseModel):
+    id: Optional[int] = None
     titulo: str
     descricao: str
     preco: float

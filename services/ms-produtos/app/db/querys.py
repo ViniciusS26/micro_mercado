@@ -12,8 +12,8 @@ def obter_produtos(db: Session):
     return db.query(models_produtos.Produto).all()
 
 def obter_produto_id(db: Session, produto_id: int):
-    return db.query(models_produtos.Produto).filter(models_produtos.Produto.id == produto_id).first()
-
+    db_produto = db.query(models_produtos.Produto).filter(models_produtos.Produto.id == produto_id).first()
+    return db_produto
 
 def obter_produto_por_titulo(db: Session, titulo: str):
     return db.query(models_produtos.Produto).filter(models_produtos.Produto.titulo == titulo).first()

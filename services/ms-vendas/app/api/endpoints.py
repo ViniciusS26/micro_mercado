@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session
 from typing import List
 from datetime import date
 
-from ..schemas import schemas_vendas as schemas
-from ..db import querys
-from ..db.connection import get_db
+from schemas import schemas_vendas as schemas
+from db import querys
+from db.connection import get_db
 
 router = APIRouter(prefix="/vendas", tags=["Vendas"])
 
