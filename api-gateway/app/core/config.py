@@ -1,9 +1,9 @@
 import os
 
 class Settings:
-    MS_FUNCIONARIOS_URL: str = os.getenv("MS_FUNCIONARIOS_URL", "http://18.207.119.76/api/v1/funcionarios")
-    MS_PRODUTOS_URL: str = os.getenv("MS_PRODUTOS_URL", "http://34.234.88.237/api/v1/produtos/")
-    MS_VENDAS_URL: str = os.getenv("MS_VENDAS_URL", "http://3.91.44.244/api/v1/vendas")
-    MS_RELATORIOS_URL: str = os.getenv("MS_RELATORIOS_URL", "http://localhost:8003/api/v1/relatorios")
+    MS_FUNCIONARIOS_URL: str = os.getenv("MS_FUNCIONARIOS_URL", "http://172.31.21.126/api/v1/funcionarios")
+    MS_PRODUTOS_URL: str = os.getenv("MS_PRODUTOS_URL", "http://172.31.21.142/api/v1/produtos/")
+    MS_VENDAS_URL: str = os.getenv("MS_VENDAS_URL", "http://172.31.23.32/api/v1/vendas")
+    MS_RELATORIOS_URL: str = os.getenv("MS_RELATORIOS_URL", "http://172.31.20.8/api/v1/relatorios")
 
 settings = Settings()
