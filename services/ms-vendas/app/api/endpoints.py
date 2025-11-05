@@ -18,7 +18,7 @@ async def buscar_produtos_service(tituloProduto: str):
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(
-                f"http://34.234.88.237/api/v1/produtos/{tituloProduto}"
+                f"http://172.31.21.142/api/v1/produtos/{tituloProduto}"
             )
             if response.status_code == 200:
                 return response.json()
@@ -38,7 +38,7 @@ async def buscar_funcionario_service(id_funcionario:int):
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(
-                f"http://18.207.119.76/api/v1/funcionarios/{id_funcionario}"
+                f"http://172.31.21.126/api/v1/funcionarios/{id_funcionario}"
             )
             if response.status_code == 200:
                 return response.json()
