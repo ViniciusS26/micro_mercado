@@ -18,7 +18,7 @@ async def buscar_produtos_service(tituloProduto: str):
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(
-                f"http://localhost:8002/api/v1/produtos/{tituloProduto}"
+                f"http://34.234.88.237/api/v1/produtos{tituloProduto}"
             )
             if response.status_code == 200:
                 return response.json()
