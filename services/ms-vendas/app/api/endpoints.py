@@ -38,7 +38,7 @@ async def buscar_funcionario_service(id_funcionario:int):
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(
-                f"http://172.31.21.126/api/v1/funcionarios/{id_funcionario}"
+                f"http://54.235.39.176/api/v1/funcionarios/{id_funcionario}"
             )
             if response.status_code == 200:
                 return response.json()
