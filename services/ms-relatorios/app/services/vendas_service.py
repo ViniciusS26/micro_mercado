@@ -8,9 +8,9 @@ from functools import lru_cache
 from ..schemas import schemas_relatorios as schemas  # Importa os nossos schemas de relatório
 
 # URL base da API do ms-vendas (deve apontar diretamente para o microserviço de vendas)
-MS_VENDAS_URL = "http://172.31.23.32/api/v1/vendas/"
-MS_PRODUTOS_URL = "http://172.31.21.142/api/v1/produtos/"
-MS_FUNCIONARIOS_URL = "http://172.31.21.126/api/v1/funcionarios/"
+MS_VENDAS_URL = "http://34.228.197.81/api/v1/vendas/"
+MS_PRODUTOS_URL = "http://54.159.92.230/api/v1/produtos/"
+MS_FUNCIONARIOS_URL = "http://54.235.39.176/api/v1/funcionarios/"
 
 
 # ============================================================
