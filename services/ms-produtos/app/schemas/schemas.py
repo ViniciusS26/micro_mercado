@@ -13,16 +13,22 @@ class ProdutoBase(BaseModel):
     data_cadastro: Optional[datetime] = None
     data_atualizacao: Optional[datetime] = None
 
-class ProdutoCreate(ProdutoBase):
+class ProdutoCreate(BaseModel):
+    titulo: str
+    descricao: str
+    preco: float
+    peso: float
+    data_fabricacao: date
+    data_validade: date
 
-    pass
-
-    
+   
 
 
-
-class ProdutoUpdate(ProdutoBase):
-    pass
+class ProdutoUpdate(BaseModel):
+    titulo: Optional[str] = None
+    descricao: Optional[str] = None 
+    preco: Optional[float] = None
+    peso: Optional[float] = None
 
 class Produto(ProdutoBase):
     id: int
