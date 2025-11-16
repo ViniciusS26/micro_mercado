@@ -13,15 +13,14 @@ from models import models_produtos
 router = APIRouter(prefix="/produtos")
 
 
-@router.post("/", response_model=schemas.Produto)
+@router.post("/", response_model=schemas.ProdutoCreate)
 def cadastrar_produto(produto: schemas.ProdutoCreate, db: Session = Depends(connection.get_db)):
-    #urls para acessar ms-fornecedores para validar
-   
+    
     dados_produto = produto.model_dump()
     produto_data = models_produtos.Produto(**dados_produto)
     return querys.criar_produto(db=db, produto=produto_data)
 
-@router.get("/{titulo}", response_model=schemas.Produto)
+@router.get("/{titulo}", response_model=schemas.ProdutoBase)
 def pegar_produto_por_titulo(titulo: str, db: Session = Depends(connection.get_db)):
     db_produto = querys.obter_produto_por_titulo(db, titulo=titulo)
     if db_produto is None:
@@ -34,11 +33,10 @@ def listar_produtos(db: Session = Depends(connection.get_db)):
 
 @router.get("/{id_produto}", response_model=schemas.Produto)
 def ver_produto(id_produto: int, db: Session = Depends(connection.get_db)):
-    # 🔧 ajuste: usar keyword correta esperada por querys.obter_produto_id
-
-    db_produto = querys.obter_produto_id(db, id_produto=id_produto)
-    print(db_produto)
-    if db_produto is None:
+    
+    db_produto = querys.obter_produto_id(db, produto_id=id_produto)
+    print(db_produto.titulo)
+    if not db_produto:
         raise HTTPException(status_code=404, detail="Produto não encontrado")
     return db_produto
 
