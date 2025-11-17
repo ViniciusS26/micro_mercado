@@ -5,7 +5,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field, ConfigDict
 
-from ..core.config import settings
+from core.config import settings
 
 router = APIRouter()
 

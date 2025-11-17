@@ -5,12 +5,12 @@ from collections import defaultdict
 from fastapi import HTTPException
 from functools import lru_cache
 
-from ..schemas import schemas_relatorios as schemas  # Importa os nossos schemas de relatório
+from schemas import schemas_relatorios as schemas  # Importa os nossos schemas de relatório
 
 # URL base da API do ms-vendas (deve apontar diretamente para o microserviço de vendas)
-MS_VENDAS_URL = "http://localhost:8004/api/v1/vendas/"
-MS_PRODUTOS_URL = "http://localhost:8002/api/v1/produtos/"
-MS_FUNCIONARIOS_URL = "http://localhost:8001/api/v1/funcionarios/"
+MS_VENDAS_URL = "http://ms_vendas:8004/api/v1/vendas/"
+MS_PRODUTOS_URL = "http://ms_produtos:8002/api/v1/produtos/"
+MS_FUNCIONARIOS_URL = "http://ms_funcionarios:8001/api/v1/funcionarios/"
 
 
 # ============================================================

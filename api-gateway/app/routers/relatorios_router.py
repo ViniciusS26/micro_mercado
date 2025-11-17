@@ -9,7 +9,7 @@ from fastapi import (
 from datetime import date
 from typing import Optional
 
-from ..core.config import settings
+from core.config import settings
 
 router = APIRouter()
 

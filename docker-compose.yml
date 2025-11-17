@@ -83,35 +83,35 @@ services:
       - DATABASE_URL=postgresql://postgres:vini123@db_vendas/vendas_db
     
 
-#  db_relatorios:
-#    image: postgres:14-alpine
-#    volumes:
-#      - postgres_relatorios:/var/lib/postgresql/data/
-#    environment:
-#      - POSTGRES_USER=postgres
-#      - POSTGRES_PASSWORD=vini123
-#      - POSTGRES_DB=relatorios_db
-#    ports:
-#      - "5435:5432"
+  db_relatorios:
+    image: postgres:14-alpine
+    volumes:
+      - postgres_relatorios:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=vini123
+      - POSTGRES_DB=relatorios_db
+    ports:
+      - "5435:5432"
     
-#  ms_relatorios:
-#    build:
-#      context: ./services/ms-relatorios
-#      dockerfile: Dockerfile
-#    command: uvicorn main:app --host 0.0.0.0 --port 8003 --reload
-#    volumes:
-#      - ./services/ms-relatorios/app:/app
-#    ports:
-#      - "8003:8003"
-#    depends_on:
-#      - db_relatorios
+  ms_relatorios:
+    build:
+      context: ./services/ms-relatorios
+      dockerfile: Dockerfile
+    command: uvicorn main:app --host 0.0.0.0 --port 8003 --reload
+    volumes:
+      - ./services/ms-relatorios/app:/app
+    ports:
+      - "8003:8003"
+    depends_on:
+      - db_relatorios
 
   # API Gateway
   api_gateway:
     build:
       context: ./api-gateway
       dockerfile: Dockerfile
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./api-gateway/app:/app
     ports:
@@ -138,4 +138,5 @@ volumes:
   postgres_funcionarios:
   postgres_produtos:
   postgres_vendas:
+  postgres_relatorios:
 #  relatorios:

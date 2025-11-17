@@ -5,8 +5,8 @@ from fastapi import Query
 from datetime import date
 
 # Importa o schema de resposta e a função do serviço
-from ..schemas import schemas_relatorios as schemas
-from ..services import vendas_service
+from schemas import schemas_relatorios as schemas
+from services import vendas_service
 
 # (Opcional: Importar get_db se precisar de acesso ao banco de dados do ms-relatorios)
 # from ..db.connection import get_db

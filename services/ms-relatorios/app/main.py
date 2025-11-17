@@ -2,10 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Importa o router dos endpoints
-from .api import endpoints
+from api import endpoints
 
 # Importa a engine e a Base do SQLAlchemy (mesmo sem modelos agora, para consistência)
-from .db.database import engine, Base
+from db.database import engine, Base
 
 # Se tivéssemos modelos em models/models_relatorios.py, esta linha os criaria
 # Base.metadata.create_all(bind=engine) 
