@@ -115,7 +115,7 @@ services:
     volumes:
       - ./api-gateway/app:/app
     ports:
-      - "8000:8000" # Porta principal da API
+      - "80:8000" # Porta principal da API
     environment:
       - MS_FUNCIONARIOS_URL=http://ms_funcionarios:8001/api/v1/funcionarios
       - MS_PRODUTOS_URL=http://ms_produtos:8002/api/v1/produtos
