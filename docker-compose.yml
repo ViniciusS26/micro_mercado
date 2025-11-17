@@ -9,7 +9,7 @@ services:
       - POSTGRES_PASSWORD=vini123
       - POSTGRES_DB=funcionarios_db
     ports:
-      - "5432:5432" # Exponha portas diferentes se rodar localmente sem Docker
+      - "5436:5432" # Exponha portas diferentes se rodar localmente sem Docker
 
   ms_funcionarios:
     build:
