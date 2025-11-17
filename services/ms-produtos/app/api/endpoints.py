@@ -50,7 +50,7 @@ def deletar_produto(id_produto: int, db: Session = Depends(get_db)):
     return db_produto
 
 @router.get("/contar/", response_model=int)
-def contar_produtos(db: Session = Depends(get_db)):
+def pegar_total(db: Session = Depends(get_db)):
     return contar_produtos(db)
 
 @router.get("/total_valor/", response_model=float)
