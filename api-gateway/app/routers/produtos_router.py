@@ -163,16 +163,7 @@ async def listar_produtos_por_titulo_proxy(
     return await _forward_request(request, f"/{titulo}")
 
 
-@router.get("/{id:int}", summary="Ver produto por ID")
-async def ver_produto_proxy(
-    request: Request,
-    id: int = Path(..., ge=1, description="ID do produto"),
-):
-    """
-    GET /api/v1/produtos/{id}
-    Retorna um produto específico por ID.
-    """
-    return await _forward_request(request, f"{id}")
+
 
 @router.put("/{id:int}", summary="Atualizar produto")
 async def atualizar_produto_proxy(
@@ -197,3 +188,30 @@ async def deletar_produto_proxy(
     Deleta um produto por ID.
     """
     return await _forward_request(request, f"{id}")
+
+@router.get("/contar/", summary="Contar produtos")
+async def contar_produtos_proxy(request: Request):
+    """
+    GET /api/v1/produtos/contar/
+    Retorna o total de produtos cadastrados.
+    """
+    return await _forward_request(request, "contar/")
+
+@router.get("/total_valor/", summary="Somar peso total dos produtos")
+async def total_valor_produtos_proxy(request: Request):
+    """
+    GET /api/v1/produtos/total_valor/
+    Retorna a soma do peso de todos os produtos.
+    """
+    return await _forward_request(request, "total_valor/")
+
+@router.get("/id/{id:int}", summary="Ver produto por ID")
+async def ver_produto_proxy(
+    request: Request,
+    id: int = Path(..., ge=1, description="ID do produto"),
+):
+    """
+    GET /api/v1/produtos/{id}
+    Retorna um produto específico por ID.
+    """
+    return await _forward_request(request, f"id/{id}")
