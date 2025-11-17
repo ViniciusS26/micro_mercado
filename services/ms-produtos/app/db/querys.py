@@ -1,5 +1,6 @@
+from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
-from models import models_produtos
+from models.models_produtos import Produto
 
 
 def criar_produto(db: Session, produto):
@@ -9,18 +10,16 @@ def criar_produto(db: Session, produto):
     return produto
 
 def obter_produtos(db: Session):
-    return db.query(models_produtos.Produto).all()
+    return db.query(Produto).all()
 
-def obter_produto_id(db: Session, produto_id: int):
-    db_produto = db.query(models_produtos.Produto).filter(models_produtos.Produto.id == produto_id).first()
-    return db_produto
+def obter_produto_id(db: Session, id: int):
+    return db.query(Produto).filter(Produto.id == id).first()
 
 def obter_produto_por_titulo(db: Session, titulo: str):
-    return db.query(models_produtos.Produto).filter(models_produtos.Produto.titulo == titulo).first()
-
+    return db.query(Produto).filter(Produto.titulo == titulo).first()
 
 def atualiza_produto(db: Session, id: int, produto):
-    db_produto = db.query(models_produtos.Produto).filter(models_produtos.Produto.id == id).first()
+    db_produto = db.query(Produto).filter(Produto.id == id).first()
     if db_produto:
         # já ajustado anteriormente para não sobrescrever com None e não mexer em id
         data = produto.model_dump(exclude_unset=True, exclude_none=True)
@@ -36,10 +35,13 @@ def deleta_produto(db: Session, produto_id: int):
     if db_produto:
         db.delete(db_produto)
         db.commit()
-        # não fazer refresh em objeto deletado
     return db_produto
 
 def contar_produtos(db: Session):
-    return db.query(models_produtos.Produto).count()
+    return db.query(Produto).count()
 
+
+def sum_valor_total(db: Session):
+    total = db.query(func.sum(Produto.peso)).scalar()
+    return total if total is not None else 0
 
