@@ -60,10 +60,10 @@ async def obter_produto_por_titulo(tituloProduto: str):
     return produto_response
 
 @router.post("/", response_model=schemas.Venda)
-async def criar_nova_venda(tituloProduto: str, id_funcionario: int, db: Session = Depends(get_db)):
+async def criar_nova_venda(novaVenda: schemas.NovaVendaCreate, db: Session = Depends(get_db)):
     """Cria uma nova venda, validando produtos via ms-produtos"""
-    produto_response = await buscar_produtos_service(tituloProduto)
-    funcionario_response = await buscar_funcionario_service(id_funcionario)
+    produto_response = await buscar_produtos_service(novaVenda.titulo_produto)
+    funcionario_response = await buscar_funcionario_service(novaVenda.id_funcionario)
 
     if isinstance(produto_response, httpx.Response) and produto_response.status_code == 404:
         raise HTTPException(status_code=404, detail="Produto não encontrado no serviço de produtos")

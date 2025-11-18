@@ -84,3 +84,10 @@ class Funcionario(BaseModel):
     cpf: str
     cargo: str
     model_config = ConfigDict(from_attributes=True)
+
+
+class NovaVendaCreate(BaseModel):
+    titulo_produto: str
+    id_funcionario: int
+
+    model_config = ConfigDict(extra="allow")  # permite campos extras sem quebrar
