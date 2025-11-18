@@ -42,6 +42,6 @@ def contar_produtos(db: Session):
 
 
 def sum_valor_total(db: Session):
-    total = db.query(func.sum(Produto.peso)).scalar()
+    total = db.query(func.sum(Produto.preco)).scalar()
     return total if total is not None else 0
 
