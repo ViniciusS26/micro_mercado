@@ -114,14 +114,26 @@ services:
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./api-gateway/app:/app
-    ports:
-      - "80:8000" # Porta principal da API
     environment:
       - MS_FUNCIONARIOS_URL=http://ms_funcionarios:8001/api/v1/funcionarios
       - MS_PRODUTOS_URL=http://ms_produtos:8002/api/v1/produtos
       - MS_VENDAS_URL=http://ms_vendas:8004/api/v1/vendas
       - MS_RELATORIOS_URL=http://ms_relatorios:8003/v1/relatorios
-      # ... (etc.)
+  
+  
+  nginx:
+    image: nginx:stable-alpine # Imagem Nginx leve
+    container_name: nginx_proxy
+    ports:
+      # Expõe a porta 80 do Nginx (e do contêiner) para o mundo externo
+      - "80:80"
+      # - "443:443" 
+    volumes:
+      # Mapeia o arquivo de configuração local para o local de configuração do Nginx no contêiner
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - api_gateway # Garante que a api_gateway esteja funcionando antes de iniciar o Nginx
+    restart: unless-stopped
 
   # Frontend
   #frontend:
