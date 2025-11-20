@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 from datetime import date, timedelta
-from ..models import models_vendas as models
-from ..schemas import schemas_vendas as schemas
+from models import models_vendas as models
+from schemas import schemas_vendas as schemas
 
 from typing import Any
 

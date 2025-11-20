@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Importa todos os routers que criamos
-from .routers import (
+from routers import (
     funcionarios_router,
     produtos_router,
     vendas_router,

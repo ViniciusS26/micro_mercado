@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session
 from typing import List
 from datetime import date
 
-from ..schemas import schemas_vendas as schemas
-from ..db import querys
-from ..db.connection import get_db
+from schemas import schemas_vendas as schemas
+from db import querys
+from db.connection import get_db
 
 router = APIRouter(prefix="/vendas", tags=["Vendas"])
 
@@ -18,7 +18,7 @@ async def buscar_produtos_service(tituloProduto: str):
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(
-                f"http://54.159.92.230/api/v1/produtos/{tituloProduto}"
+                f"http://ms_produtos:8002/api/v1/produtos/{tituloProduto}"
             )
             if response.status_code == 200:
                 return response.json()
@@ -38,7 +38,7 @@ async def buscar_funcionario_service(id_funcionario:int):
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(
-                f"http://54.235.39.176/api/v1/funcionarios/{id_funcionario}"
+                f"http://ms_funcionarios:8001/api/v1/funcionarios/{id_funcionario}"
             )
             if response.status_code == 200:
                 return response.json()
@@ -60,10 +60,10 @@ async def obter_produto_por_titulo(tituloProduto: str):
     return produto_response
 
 @router.post("/", response_model=schemas.Venda)
-async def criar_nova_venda(tituloProduto: str, id_funcionario: int, db: Session = Depends(get_db)):
+async def criar_nova_venda(novaVenda: schemas.NovaVendaCreate, db: Session = Depends(get_db)):
     """Cria uma nova venda, validando produtos via ms-produtos"""
-    produto_response = await buscar_produtos_service(tituloProduto)
-    funcionario_response = await buscar_funcionario_service(id_funcionario)
+    produto_response = await buscar_produtos_service(novaVenda.titulo_produto)
+    funcionario_response = await buscar_funcionario_service(novaVenda.id_funcionario)
 
     if isinstance(produto_response, httpx.Response) and produto_response.status_code == 404:
         raise HTTPException(status_code=404, detail="Produto não encontrado no serviço de produtos")

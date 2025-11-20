@@ -5,8 +5,8 @@ from fastapi import Query
 from datetime import date
 
 # Importa o schema de resposta e a função do serviço
-from ..schemas import schemas_relatorios as schemas
-from ..services import vendas_service
+from schemas import schemas_relatorios as schemas
+from services.vendas_service import obter_ranking_funcionarios, obter_ranking_produtos, obter_sumario_vendas_periodo, obter_vendas_por_periodo
 
 # (Opcional: Importar get_db se precisar de acesso ao banco de dados do ms-relatorios)
 # from ..db.connection import get_db
@@ -29,7 +29,7 @@ async def gerar_relatorio_sumario_vendas(
     """
     try:
         # Chama a função assíncrona do nosso serviço para buscar os dados
-        relatorio = await vendas_service.obter_sumario_vendas_periodo(
+        relatorio = await obter_sumario_vendas_periodo(
             data_inicio=data_inicio,
             data_fim=data_fim
         )
@@ -54,7 +54,7 @@ async def vendas_por_periodo(
     Série temporal de vendas agregadas por dia ou mês.
     """
     try:
-        return await vendas_service.obter_vendas_por_periodo(
+        return await obter_vendas_por_periodo(
             data_inicio=data_inicio,
             data_fim=data_fim,
             granularidade=granularidade,
@@ -82,7 +82,7 @@ async def ranking_produtos(
     Top-N de produtos por quantidade vendida ou valor faturado.
     """
     try:
-        return await vendas_service.obter_ranking_produtos(
+        return await obter_ranking_produtos(
             data_inicio=data_inicio,
             data_fim=data_fim,
             ordenar_por=ordenar_por,
@@ -111,7 +111,7 @@ async def ranking_funcionarios(
     Top-N de funcionários por quantidade de vendas ou por valor faturado.
     """
     try:
-        return await vendas_service.obter_ranking_funcionarios(
+        return await obter_ranking_funcionarios(
             data_inicio=data_inicio,
             data_fim=data_fim,
             ordenar_por=ordenar_por,

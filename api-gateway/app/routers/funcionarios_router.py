@@ -12,7 +12,7 @@ from typing import Optional
 from datetime import date
 from pydantic import BaseModel, Field, ConfigDict
 
-from ..core.config import settings
+from core.config import settings
 
 router = APIRouter()
 

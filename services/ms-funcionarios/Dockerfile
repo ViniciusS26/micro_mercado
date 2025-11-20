@@ -1,6 +1,6 @@
 # Dockerfile for FastAPI app with PostgreSQL dependency
 
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 
@@ -18,4 +18,4 @@ COPY . .
 EXPOSE 8001
 
 # Start FastAPI app
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD ["uvicorn", "main:app", "--host", "localhost", "--port", "8001"]
