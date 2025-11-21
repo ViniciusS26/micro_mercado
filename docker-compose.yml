@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   # Base de Dados para cada serviço
   db_funcionarios:
@@ -9,8 +11,9 @@ services:
       - POSTGRES_PASSWORD=vini123
       - POSTGRES_DB=funcionarios_db
     ports:
-      - "5436:5432" # Exponha portas diferentes se rodar localmente sem Docker
+      - "5436:5432"
 
+  # Microsserviços FastAPI
   ms_funcionarios:
     build:
       context: ./services/ms-funcionarios
@@ -26,21 +29,16 @@ services:
       - DATABASE_URL=postgresql://postgres:vini123@db_funcionarios/funcionarios_db
 
   db_produtos:
-     image: postgres:14-alpine
-     volumes:
-       - postgres_produtos:/var/lib/postgresql/data/
-     environment:
-       - POSTGRES_USER=user
-       - POSTGRES_PASSWORD=password
-       - POSTGRES_DB=produtos_db
-    
-     ports:
-       - "5433:5432"
+    image: postgres:14-alpine
+    volumes:
+      - postgres_produtos:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=produtos_db
+    ports:
+      - "5433:5432"
 
-
-
-  # Microsserviços
-  
   ms_produtos:
     build:
       context: ./services/ms-produtos
@@ -54,8 +52,6 @@ services:
       - db_produtos
     environment:
       - DATABASE_URL=postgresql://user:password@db_produtos/produtos_db
-
-  # ... (definir um 'ms_' para cada microsserviço)
 
   db_vendas:
     image: postgres:14-alpine
@@ -81,7 +77,6 @@ services:
       - db_vendas
     environment:
       - DATABASE_URL=postgresql://postgres:vini123@db_vendas/vendas_db
-    
 
   db_relatorios:
     image: postgres:14-alpine
@@ -93,7 +88,7 @@ services:
       - POSTGRES_DB=relatorios_db
     ports:
       - "5435:5432"
-    
+
   ms_relatorios:
     build:
       context: ./services/ms-relatorios
@@ -106,7 +101,7 @@ services:
     depends_on:
       - db_relatorios
 
-  # API Gateway
+  # API Gateway (FastAPI)
   api_gateway:
     build:
       context: ./api-gateway
@@ -119,36 +114,51 @@ services:
       - MS_PRODUTOS_URL=http://ms_produtos:8002/api/v1/produtos
       - MS_VENDAS_URL=http://ms_vendas:8004/api/v1/vendas
       - MS_RELATORIOS_URL=http://ms_relatorios:8003/v1/relatorios
-  
-  
+    depends_on:
+      - ms_funcionarios
+      - ms_produtos
+      - ms_vendas
+      - ms_relatorios
+
+  # ------------------------------------------------------------------------
+  # NOVO SERVIÇO: BUILD E SERVIÇO DO VUE (Frontend)
+  # ------------------------------------------------------------------------
+  frontend:
+    # Usa o Dockerfile que criamos em ./frontend/Dockerfile
+    build:
+      context: ./frontend 
+      dockerfile: Dockerfile
+    container_name: vue_frontend_builder
+    # Monta um volume para persistir a pasta 'dist' (o resultado do build)
+    # e poder compartilhá-lo com o serviço Nginx.
+    volumes:
+      - vue_dist_volume:/app/dist
+    # Esta linha garante que o build seja executado sempre que o Compose for iniciado
+    command: npm run build -- --base /app/ 
+
+  # ------------------------------------------------------------------------
+  # NGINX - Reverse Proxy e Servidor de Arquivos Estáticos
+  # ------------------------------------------------------------------------
   nginx:
-    image: nginx:stable-alpine # Imagem Nginx leve
+    image: nginx:stable-alpine
     container_name: nginx_proxy
     ports:
-      # Expõe a porta 80 do Nginx (e do contêiner) para o mundo externo
       - "80:80"
-      # - "443:443" 
     volumes:
-      # Mapeia o arquivo de configuração local para o local de configuração do Nginx no contêiner
+      # Mapeia o arquivo de configuração Nginx modificado
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # Mapeia o resultado da compilação do Vue (volume 'dist')
+      # para o local onde o Nginx espera encontrar os arquivos estáticos (/usr/share/nginx/html)
+      - vue_dist_volume:/usr/share/nginx/html/app
     depends_on:
-      - api_gateway # Garante que a api_gateway esteja funcionando antes de iniciar o Nginx
+      - api_gateway 
+      - vue-frontend # Garante que o build do Vue termine antes do Nginx tentar servir os arquivos
     restart: unless-stopped
-
-  # Frontend
-  #frontend:
-  #  build:
-  #    context: ./frontend
-  #   dockerfile: Dockerfile
-  #  volumes:
-  #    - ./frontend:/app
-  #    - /app/node_modules
-  #  ports:
-  #    - "8080:8080" # Porta para acessar a aplicação no navegador
 
 volumes:
   postgres_funcionarios:
   postgres_produtos:
   postgres_vendas:
   postgres_relatorios:
-#  relatorios:
+  # NOVO VOLUME: Volume para compartilhar o resultado do build do Vue
+  vue_dist_volume:

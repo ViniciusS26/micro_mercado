@@ -18,4 +18,5 @@ COPY . .
 EXPOSE 8001
 
 # Start FastAPI app
-CMD ["uvicorn", "main:app", "--host", "localhost", "--port", "8001"]
+# CRITICAL FIX: Changed --host localhost to --host 0.0.0.0
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
