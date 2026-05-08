@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+
 from typing import List
 from sqlalchemy.orm import Session
 from core import security
@@ -20,21 +21,19 @@ router = APIRouter(prefix="/funcionarios")
 
 @router.post("/auth", response_model=security.FuncionarioTokken)
 def login_funcionario(cpf: str, senha: str, db: Session = Depends(get_db)):
-    """ Rota de login para funcionários de acordo o cpf e senha  """
+    """ Rota de login para funcionários """
+    # 1. Busca o funcionário pelo CPF
     funcionario = db.query(Funcionarios).filter(Funcionarios.cpf == cpf).first()
-    if not funcionario:
-        raise HTTPException(status_code=400, detail="CPF ou senha inválidos")
-    if not security.verify_password(senha, funcionario.senha):
-        raise HTTPException(status_code=400, detail="CPF ou senha inválidos")
-
-    token_data = {
-        "id": funcionario.id,
-        "nome": funcionario.nome,
-        "cpf": funcionario.cpf,
-        "cargo": funcionario.cargo,
-    }
+    
+    # 2. Autentica (verifica a senha)
+    if not security.authenticate_user(funcionario, senha):
+        raise HTTPException(status_code=401, detail="CPF ou senha inválidos")
    
-    return token_data
+    # 3. Cria o token
+    token = security.create_access_token(data={"sub": funcionario.cpf})
+    
+    # 4. Retorna o token (o padrão OAuth2 espera access_token e token_type)
+    return {"access_token": token, "token_type": "bearer"}
 
 @router.get("/", response_model=List[FuncionarioResponse])
 def obter_funcionario(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
