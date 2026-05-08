@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from typing import List
 from sqlalchemy.orm import Session
-from core import security
+from services import security
 
-from schemas.schema import (
+from schemas import (
     FuncionarioCreate,
     FuncionarioResponse,
     EnderecoResponse,

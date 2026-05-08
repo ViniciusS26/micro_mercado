@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session,joinedload
 from models.models_funcionarios import Funcionarios, Enderecos
-from schemas.schema import FuncionarioCreate, EnderecoCreate, FuncionarioUpdate
+from schemas import FuncionarioCreate, EnderecoCreate, FuncionarioUpdate
 
 
 """ def listar_todos_funcionarios(db: Session):

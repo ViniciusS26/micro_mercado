@@ -3,9 +3,9 @@ import httpx
 from pydantic import BaseModel
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from schemas.schemas import ProdutoCreate, ProdutoBase, Produto, ProdutoUpdate
+from schemas import ProdutoCreate, ProdutoBase, Produto, ProdutoUpdate
 from db.connection import  get_db
-from db.querys import criar_produto, obter_produtos, obter_produto_id, obter_produto_por_titulo, atualiza_produto, deleta_produto, contar_produtos, sum_valor_total
+from db.querys_produtos import criar_produto, obter_produtos, obter_produto_id, obter_produto_por_titulo, atualiza_produto, deleta_produto, contar_produtos, sum_valor_total
 from models import models_produtos
 
 
