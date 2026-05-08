@@ -2,9 +2,8 @@ from zoneinfo import ZoneInfo
 from pwdlib import PasswordHash
 from datetime import datetime, timedelta
 from datetime import datetime, timedelta, timezone
-from jwt import encode
+
 from jose import JWTError
-from pwdlib import PasswordHash
 from sqlalchemy.orm import Session
 from fastapi import Depends,HTTPException, status
 from http import HTTPStatus
