@@ -2,7 +2,6 @@ from zoneinfo import ZoneInfo
 from pwdlib import PasswordHash
 from datetime import datetime, timedelta
 from datetime import datetime, timedelta, timezone
-
 from jose import JWTError
 from sqlalchemy.orm import Session
 from fastapi import Depends,HTTPException, status
@@ -13,8 +12,15 @@ from http import HTTPStatus
 from pydantic import BaseModel, ConfigDict
 from db.dependeces import get_db  as get_session
 
-SECRETY_KEY = 'FSDFSDFSDFSDFSDSDS.ASDASDASDASD'
-ALGORITHM = 'HS256'
+
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+SECRETY_KEY = os.getenv("SECRETY_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 class FuncionarioTokken(BaseModel):
     id: int
@@ -62,7 +68,7 @@ def create_access_token(data_payload: dict):
         str: token de acesso.
     """
     # Define o tempo de expiração do token
-    expire = datetime.now(tz=timezone.utc) + timedelta(minutes=60)
+    expire = datetime.now(tz=timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
     # Cria o token
     token = encode(
@@ -82,7 +88,7 @@ def verify_access_token(token: str, credentials_exception):
         TokenData: dados do usuário extraídos do token.
     """
     try:
-        payload = decode(token, SECRETY_KEY, algorithms=['HS256'])
+        payload = decode(token, SECRETY_KEY, algorithms=[ALGORITHM])
         cpf: str = payload.get("sub")
         if cpf is None:
             raise credentials_exception
