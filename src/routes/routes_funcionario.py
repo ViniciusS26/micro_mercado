@@ -19,20 +19,17 @@ router = APIRouter(prefix="/funcionarios")
 
 
 
-@router.post("/auth", response_model=security.FuncionarioTokken)
+@router.post("/auth")
 def login_funcionario(cpf: str, senha: str, db: Session = Depends(get_db)):
     """ Rota de login para funcionários """
-    # 1. Busca o funcionário pelo CPF
-    funcionario = db.query(Funcionarios).filter(Funcionarios.cpf == cpf).first()
     
-    # 2. Autentica (verifica a senha)
-    if not security.authenticate_user(funcionario, senha):
-        raise HTTPException(status_code=401, detail="CPF ou senha inválidos")
+    # Chama a função de autenticação passando a sessão 'db', o cpf e a senha
+    funcionario = security.authenticate_user(db=db, cpf=cpf, password=senha)
    
-    # 3. Cria o token
-    token = security.create_access_token(data={"sub": funcionario.cpf})
+    # Cria o token usando o CPF do funcionário autenticado
+    token = security.create_access_token(data_payload={"sub": funcionario.cpf})
     
-    # 4. Retorna o token (o padrão OAuth2 espera access_token e token_type)
+    # Retorna o formato padrão esperado pelo OAuth2
     return {"access_token": token, "token_type": "bearer"}
 
 @router.get("/", response_model=List[FuncionarioResponse])

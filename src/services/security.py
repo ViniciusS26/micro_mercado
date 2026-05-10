@@ -16,6 +16,8 @@ from db.dependeces import get_db  as get_session
 import os
 from dotenv import load_dotenv
 
+from models.models_funcionarios import Funcionarios
+
 load_dotenv()
 
 SECRETY_KEY = os.getenv("SECRETY_KEY")
@@ -98,19 +100,18 @@ def verify_access_token(token: str, credentials_exception):
     return token_data
 
 
-def authenticate_user(db: Session = Depends(get_session), cpf:str = str, password:str = str):
-    """Autentica o usuário a partir do token de acesso.
-    Args:
-        token (str): token de acesso.
-        db (Session): sessão do banco de dados.
-    Returns:
-        Funcionarios: usuário autenticado.
-    """
-    funcionario_cpf = db.query(cpf).filter(cpf == cpf).first()
-    if not funcionario_cpf or not verify_password(password, funcionario_cpf.senha):
+def authenticate_user(db: Session, cpf: str, password: str):
+    """Autentica o usuário verificando CPF e Senha."""
+    
+    # 1. Busca o funcionário pelo CPF na tabela Funcionarios
+    funcionario = db.query(Funcionarios).filter(Funcionarios.cpf == cpf).first()
+    
+    # 2. Verifica se o funcionário existe e se a senha está correta
+    if not funcionario or not verify_password(password, funcionario.senha):
         raise HTTPException(
             status_code=HTTPStatus.UNAUTHORIZED,
-            detail="Credenciais inválidas",
+            detail="CPF ou senha inválidos",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return funcionario_cpf
+    
+    return funcionario
