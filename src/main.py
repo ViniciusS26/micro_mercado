@@ -27,3 +27,7 @@ app.include_router(routes_funcionario.router, prefix="/api/v1")
 app.include_router(routes_produtos.router, prefix="/api/v1")
 app.include_router(routes_vendas.router, prefix="/api/v1")
 app.include_router(routes_relatorio.router, prefix="/api/v1")
+
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8000)
