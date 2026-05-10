@@ -11,10 +11,10 @@ from jwt import encode, decode, DecodeError
 from fastapi.security import OAuth2PasswordBearer
 from http import HTTPStatus
 from pydantic import BaseModel, ConfigDict
-from core.config import settings
-from db.connection import get_db  as get_session
+from db.dependeces import get_db  as get_session
 
-
+SECRETY_KEY = 'FSDFSDFSDFSDFSDSDS.ASDASDASDASD'
+ALGORITHM = 'HS256'
 
 class FuncionarioTokken(BaseModel):
     id: int
@@ -62,13 +62,13 @@ def create_access_token(data_payload: dict):
         str: token de acesso.
     """
     # Define o tempo de expiração do token
-    expire = datetime.now(tz=timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(tz=timezone.utc) + timedelta(minutes=60)
 
     # Cria o token
     token = encode(
         {"exp": expire, **data_payload},
-        settings.SECRETY_KEY,
-        algorithm=settings.ALGORITHM
+        SECRETY_KEY,
+        algorithm=ALGORITHM
     )
     return token
 
@@ -82,7 +82,7 @@ def verify_access_token(token: str, credentials_exception):
         TokenData: dados do usuário extraídos do token.
     """
     try:
-        payload = decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = decode(token, SECRETY_KEY, algorithms=['HS256'])
         cpf: str = payload.get("sub")
         if cpf is None:
             raise credentials_exception

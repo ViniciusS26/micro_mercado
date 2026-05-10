@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session
 from typing import List
 from datetime import date
 
-from schemas import schemas_vendas as schemas
-from db import querys
-from db.connection import get_db
+from schemas.schema_vendas import ItemVendaCreate, VendaCreate, Venda, PaginaVendas, RelatorioFuncionario,Produto, VendaUpdate
+from db.querys_vendas import criar_venda, listar_vendas, obter_venda_por_id, obter_relatorio_por_funcionario, deletar_venda, atualizar_venda
+from db.dependeces import get_db
 
 router = APIRouter(prefix="/vendas", tags=["Vendas"])
 
@@ -51,7 +51,7 @@ async def buscar_funcionario_service(id_funcionario:int):
 
 
 
-@router.get("/produtos/{tituloProduto}", response_model=schemas.Produto)
+@router.get("/produtos/{tituloProduto}", response_model=Produto)
 async def obter_produto_por_titulo(tituloProduto: str):
     """Rota para obter produto por título via ms-produtos"""
     produto_response = await buscar_produtos_service(tituloProduto)
@@ -59,8 +59,8 @@ async def obter_produto_por_titulo(tituloProduto: str):
         raise HTTPException(status_code=404, detail="Produto não encontrado no serviço de produtos")
     return produto_response
 
-@router.post("/", response_model=schemas.Venda)
-async def criar_nova_venda(novaVenda: schemas.NovaVendaCreate, db: Session = Depends(get_db)):
+@router.post("/", response_model=Venda)
+async def criar_nova_venda(novaVenda: VendaCreate, db: Session = Depends(get_db)):
     """Cria uma nova venda, validando produtos via ms-produtos"""
     produto_response = await buscar_produtos_service(novaVenda.titulo_produto)
     funcionario_response = await buscar_funcionario_service(novaVenda.id_funcionario)
@@ -73,12 +73,12 @@ async def criar_nova_venda(novaVenda: schemas.NovaVendaCreate, db: Session = Dep
     
     # 1. Mapeia a resposta do produto para o schema Produto
     try:
-        produto_schema = schemas.Produto(**produto_response)
+        produto_schema = Produto(**produto_response)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Resposta inesperada do serviço de produtos: {e}")
 
     # 2. Cria o schema do ItemVenda (o item que foi vendido)
-    item_para_venda = schemas.ItemVendaCreate(
+    item_para_venda = ItemVendaCreate(
         produto_id=produto_schema.id,
         quantidade=1,  
         preco_unitario=produto_schema.preco
@@ -86,7 +86,7 @@ async def criar_nova_venda(novaVenda: schemas.NovaVendaCreate, db: Session = Dep
 
     # 3. Cria o schema da VendaCreate, já incluindo o item na lista "itens"
     try:
-        venda_schema_create = schemas.VendaCreate(
+        venda_schema_create = VendaCreate(
             funcionario_id=funcionario_response["id"],
             nome_funcionario=funcionario_response.get("nome", "Nome não encontrado"),
             cpf=funcionario_response.get("cpf", "CPF não encontrado"),
@@ -97,11 +97,11 @@ async def criar_nova_venda(novaVenda: schemas.NovaVendaCreate, db: Session = Dep
         raise HTTPException(status_code=500, detail=f"Erro ao criar schema da Venda: {e}")
 
     # 4. Passa o schema da Venda (que agora contém os itens) para a função de query
-    return querys.criar_venda(db=db, venda=venda_schema_create)
+    return criar_venda(db=db, venda=venda_schema_create)
 
 
 
-@router.get("/", response_model=schemas.PaginaVendas)
+@router.get("/", response_model=PaginaVendas)
 def ler_vendas(
     db: Session = Depends(get_db),
     data_inicio: date | None = None,
@@ -113,7 +113,7 @@ def ler_vendas(
     Retorna uma página de vendas com estatísticas, 
     permitindo filtro por data.
     """
-    return querys.listar_vendas(
+    return listar_vendas(
         db=db, 
         data_inicio=data_inicio, 
         data_fim=data_fim, 
@@ -122,19 +122,19 @@ def ler_vendas(
     )
 
 
-@router.get("/{venda_id}", response_model=schemas.Venda)
+@router.get("/{venda_id}", response_model=Venda)
 def ler_venda_por_id(venda_id: int, db: Session = Depends(get_db)):
     """
     Busca e retorna uma venda específica pelo seu ID.
     """
-    db_venda = querys.obter_venda_por_id(db, venda_id=venda_id)
+    db_venda = obter_venda_por_id(db, venda_id=venda_id)
     if db_venda is None:
         raise HTTPException(status_code=404, detail="Venda não encontrada")
     return db_venda
 
 @router.get(
     "/funcionario/{funcionario_id}", 
-    response_model=schemas.RelatorioFuncionario
+    response_model=RelatorioFuncionario
 )
 def gerar_relatorio_de_funcionario(
     funcionario_id: int, 
@@ -148,7 +148,7 @@ def gerar_relatorio_de_funcionario(
     Gera um relatório de vendas para um funcionário com estatísticas,
     filtros por data e paginação.
     """
-    relatorio = querys.obter_relatorio_por_funcionario(
+    relatorio = obter_relatorio_por_funcionario(
         db=db, 
         funcionario_id=funcionario_id,
         data_inicio=data_inicio,
@@ -158,26 +158,26 @@ def gerar_relatorio_de_funcionario(
     )
     return relatorio
 
-@router.delete("/{venda_id}", response_model=schemas.Venda)
+@router.delete("/{venda_id}", response_model=Venda)
 def deletar_venda_por_id(venda_id: int, db: Session = Depends(get_db)):
     """
     Deleta uma venda específica pelo seu ID.
     """
-    db_venda = querys.deletar_venda(db, venda_id=venda_id)
+    db_venda = deletar_venda(db, venda_id=venda_id)
     if db_venda is None:
         raise HTTPException(status_code=404, detail="Venda não encontrada")
     return db_venda
 
-@router.put("/{venda_id}", response_model=schemas.Venda)
+@router.put("/{venda_id}", response_model=Venda)
 def atualizar_venda_por_id(
     venda_id: int, 
-    venda_update: schemas.VendaUpdate, 
+    venda_update: VendaUpdate, 
     db: Session = Depends(get_db)
 ):
     """
     Atualiza uma venda existente, substituindo completamente seus itens.
     """
-    db_venda = querys.atualizar_venda(db, venda_id=venda_id, venda_update=venda_update)
+    db_venda = atualizar_venda(db, venda_id=venda_id, venda_update=venda_update)
     if db_venda is None:
         raise HTTPException(status_code=404, detail="Venda não encontrada para atualização")
     return db_venda

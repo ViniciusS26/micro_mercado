@@ -2,7 +2,7 @@ from pydantic import BaseModel,field_validator, ConfigDict
 from typing import List, Optional
 from datetime import date, datetime
 from validate_docbr import CPF
-from core import security
+from services.security import get_password_hash, verify_password, create_access_token
 
 
 
@@ -63,7 +63,7 @@ class FuncionarioCreate(BaseModel):
         if len(senha) < 8:
             raise ValueError('Senha deve ter pelo menos 8 caracteres')
 
-        hashed_senha = security.get_password_hash(senha)
+        hashed_senha = get_password_hash(senha)
         return hashed_senha
 
     @field_validator('cpf')

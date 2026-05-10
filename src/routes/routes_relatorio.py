@@ -5,9 +5,9 @@ from fastapi import Query
 from datetime import date
 
 # Importa o schema de resposta e a função do serviço
-from schemas import schemas_relatorios as schemas
-from services.vendas_service import obter_ranking_funcionarios, obter_ranking_produtos, obter_sumario_vendas_periodo, obter_vendas_por_periodo
 
+from services.vendas_service import obter_ranking_funcionarios, obter_ranking_produtos, obter_sumario_vendas_periodo, obter_vendas_por_periodo
+from schemas.schemas_relatorios import RelatorioVendasSumario, RelatorioVendasPorPeriodo, RelatorioRankingProdutos, RelatorioRankingFuncionarios
 # (Opcional: Importar get_db se precisar de acesso ao banco de dados do ms-relatorios)
 # from ..db.connection import get_db
 # from sqlalchemy.orm import Session
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/relatorios")
 
 @router.get(
     "/vendas-sumario", 
-    response_model=schemas.RelatorioVendasSumario
+    response_model=RelatorioVendasSumario
 )
 async def gerar_relatorio_sumario_vendas(
     data_inicio: Optional[date] = None,
@@ -43,7 +43,7 @@ async def gerar_relatorio_sumario_vendas(
     
 @router.get(
     "/vendas-por-periodo",
-    response_model=schemas.RelatorioVendasPorPeriodo
+    response_model=RelatorioVendasPorPeriodo
 )
 async def vendas_por_periodo(
     data_inicio: date | None = None,
@@ -69,7 +69,7 @@ async def vendas_por_periodo(
 
 @router.get(
     "/ranking-produtos",
-    response_model=schemas.RelatorioRankingProdutos
+    response_model=RelatorioRankingProdutos
 )
 async def ranking_produtos(
     data_inicio: date | None = None,
@@ -98,7 +98,7 @@ async def ranking_produtos(
 
 @router.get(
     "/ranking-funcionarios",
-    response_model=schemas.RelatorioRankingFuncionarios
+    response_model=RelatorioRankingFuncionarios
 )
 async def ranking_funcionarios(
     data_inicio: date | None = None,

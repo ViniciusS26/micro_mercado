@@ -2,12 +2,12 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 from datetime import date, timedelta
 from models import models_vendas as models
-from schemas import schemas_vendas as schemas
+from schemas.schema_vendas import VendaCreate, PaginaVendas, RelatorioFuncionario, VendaUpdate, ItemVendaCreate, Venda, PaginaVendasStats, RelatorioFuncionarioStats, Produto
 
 from typing import Any
 
 
-def criar_venda(db: Session, venda: schemas.VendaCreate):
+def criar_venda(db: Session, venda: VendaCreate):
     """
     Cria uma nova venda com seus itens associados.
     """
@@ -62,7 +62,7 @@ def listar_vendas(
     total_produtos_periodo_query = query_base.join(models.ItemVenda).with_entities(func.sum(models.ItemVenda.quantidade)).scalar()
     total_produtos_periodo = total_produtos_periodo_query or 0
 
-    estatisticas_obj = schemas.PaginaVendasStats(
+    estatisticas_obj = PaginaVendasStats(
         total_registros=total_registros,
         valor_total_periodo=valor_total_periodo,
         total_produtos_periodo=total_produtos_periodo
@@ -75,7 +75,7 @@ def listar_vendas(
         "vendas": vendas_db
     }
     
-    return schemas.PaginaVendas.model_validate(pagina_data)
+    return PaginaVendas.model_validate(pagina_data)
 
 
 def obter_venda_por_id(db: Session, venda_id: int):
@@ -118,7 +118,7 @@ def obter_relatorio_por_funcionario(
     total_produtos_vendidos_query = query_base.join(models.ItemVenda).with_entities(func.sum(models.ItemVenda.quantidade)).scalar()
     total_produtos_vendidos = total_produtos_vendidos_query or 0
 
-    estatisticas_obj = schemas.RelatorioFuncionarioStats(
+    estatisticas_obj = RelatorioFuncionarioStats(
         total_vendas=total_vendas,
         valor_total_vendido=valor_total_vendido,
         total_produtos_vendidos=total_produtos_vendidos
@@ -131,7 +131,7 @@ def obter_relatorio_por_funcionario(
         "vendas": vendas_db
     }
 
-    return schemas.RelatorioFuncionario.model_validate(relatorio_data)
+    return RelatorioFuncionario.model_validate(relatorio_data)
 
 
 def deletar_venda(db: Session, venda_id: int):
@@ -146,7 +146,7 @@ def deletar_venda(db: Session, venda_id: int):
     
     return db_venda
 
-def atualizar_venda(db: Session, venda_id: int, venda_update: schemas.VendaUpdate):
+def atualizar_venda(db: Session, venda_id: int, venda_update: VendaUpdate):
     """
     Atualiza uma venda existente, substituindo os itens e recalculando o total.
     """
