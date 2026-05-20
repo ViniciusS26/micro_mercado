@@ -37,7 +37,7 @@ class FuncionarioTokken(BaseModel):
 pwd_context = PasswordHash.recommended()
 
 
-auth2_scheme = OAuth2PasswordBearer(tokenUrl="funcionarios/auth")
+auth2_scheme = OAuth2PasswordBearer(tokenUrl="funcionarios/auth/")
 
 def get_password_hash(password: str):
     """Retorna o hash da senha do usuário.
