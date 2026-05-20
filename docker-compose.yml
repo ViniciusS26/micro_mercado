@@ -1,27 +1,19 @@
 services:
-  database:
-    image: postgres:14-alpine
-    volumes:
-      - postgres_mercado:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=vini123
-      - POSTGRES_DB=mercado_db
-    ports:
-      - "5432:5432"
-
   api:
     build: ./src
     volumes:
       - ./src:/code
-    command: python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload 
+    command: python -m uvicorn main:app --host 0.0.0.0 --port 8001 --reload
     ports:
-      - "8000:8000"
+      - "8001:8001"
     environment:
       - PYTHONUNBUFFERED=1
       - DATABASE_URL=postgresql://postgres:vini123@database:5432/mercado_db
-    depends_on:
-      - database
+    networks:
+      - default
+      - rede_do_qb_conecta
 
-volumes:
-  postgres_mercado:
+networks:
+  rede_do_qb_conecta:
+    external: true
+    name: qb_conecta_default

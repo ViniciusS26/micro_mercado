@@ -19,7 +19,7 @@ router = APIRouter(prefix="/funcionarios")
 
 
 
-@router.post("/auth")
+@router.post("/auth/")
 def login_funcionario(cpf: str, senha: str, db: Session = Depends(get_db)):
     """ Rota de login para funcionários """
     

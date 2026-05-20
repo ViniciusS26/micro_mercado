@@ -3,10 +3,11 @@ import httpx
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import date
-
 from schemas.schema_vendas import ItemVendaCreate, VendaCreate, Venda, PaginaVendas, RelatorioFuncionario,Produto, VendaUpdate
 from db.querys_vendas import criar_venda, listar_vendas, obter_venda_por_id, obter_relatorio_por_funcionario, deletar_venda, atualizar_venda
 from db.dependeces import get_db
+import os
+
 
 router = APIRouter(prefix="/vendas", tags=["Vendas"])
 
@@ -18,7 +19,7 @@ async def buscar_produtos_service(tituloProduto: str):
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(
-                f"http://ms_produtos:8002/api/v1/produtos/{tituloProduto}"
+                f"{os.getenv('DEV_HOST')}/api/v1/produtos/{tituloProduto}"
             )
             if response.status_code == 200:
                 return response.json()
@@ -38,7 +39,7 @@ async def buscar_funcionario_service(id_funcionario:int):
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(
-                f"http://ms_funcionarios:8001/api/v1/funcionarios/{id_funcionario}"
+                f"{os.getenv('DEV_HOST')}/api/v1/funcionarios/{id_funcionario}"
             )
             if response.status_code == 200:
                 return response.json()
