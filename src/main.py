@@ -30,11 +30,6 @@ app.add_middleware(
     allow_headers=["*"], 
 )
 
-# 2. Configuração do TrustedHost (hosts permitidos)
-app.add_middleware(
-    TrustedHostMiddleware,
-    allowed_hosts=origins  
-)
 
 app.include_router(routes_funcionario.router, prefix="/api/v1")
 app.include_router(routes_produtos.router, prefix="/api/v1")
