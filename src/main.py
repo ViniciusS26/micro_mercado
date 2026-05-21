@@ -23,7 +23,7 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allowed_hosts=["*"],
+    allowed_hosts=["https://sistema.viniciuss.com.br"],
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
@@ -33,7 +33,7 @@ app.add_middleware(
 # 2. Configuração do TrustedHost (hosts permitidos)
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["*"]  
+    allowed_hosts=["https://sistema.viniciuss.com.br"]  
 )
 
 app.include_router(routes_funcionario.router, prefix="/api/v1")
