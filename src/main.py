@@ -23,7 +23,6 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    TrustedHostMiddleware,
     allowed_hosts=["*"],
     allow_origins=origins,
     allow_credentials=True,
@@ -31,6 +30,11 @@ app.add_middleware(
     allow_headers=["*"], 
 )
 
+# 2. Configuração do TrustedHost (hosts permitidos)
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=["*"]  
+)
 
 app.include_router(routes_funcionario.router, prefix="/api/v1")
 app.include_router(routes_produtos.router, prefix="/api/v1")
