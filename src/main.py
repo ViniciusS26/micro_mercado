@@ -17,13 +17,13 @@ app = FastAPI(
 origins = [
     #"http://localhost",
     #"http://localhost:3000", """
-    "https://sistema.viniciuss.com.br"
+    "https://sgm.viniciuss.com.br"
 ]
 
 
 app.add_middleware(
     CORSMiddleware,
-    allowed_hosts=["https://sistema.viniciuss.com.br"],
+    allowed_hosts=origins,
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
@@ -33,7 +33,7 @@ app.add_middleware(
 # 2. Configuração do TrustedHost (hosts permitidos)
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["https://sistema.viniciuss.com.br"]  
+    allowed_hosts=origins  
 )
 
 app.include_router(routes_funcionario.router, prefix="/api/v1")
@@ -42,5 +42,3 @@ app.include_router(routes_vendas.router, prefix="/api/v1")
 app.include_router(routes_relatorio.router, prefix="/api/v1")
 
 
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000)
