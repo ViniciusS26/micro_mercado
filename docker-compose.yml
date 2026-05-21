@@ -9,6 +9,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - DATABASE_URL=postgresql://postgres:vini123@database:5432/mercado_db
+      # Variáveis de segurança injetadas diretamente no contêiner:
+      - SECRETY_KEY=FSDFSDFSDFSDFSDSDS.ASDASDASDASD
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=10080
     networks:
       - default
       - rede_do_qb_conecta

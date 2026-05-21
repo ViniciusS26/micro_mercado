@@ -20,9 +20,9 @@ from models.models_funcionarios import Funcionarios
 
 load_dotenv()
 
-SECRETY_KEY = os.getenv("SECRETY_KEY")
-ALGORITHM = os.getenv("ALGORITHM")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+SECRETY_KEY = os.getenv("SECRETY_KEY", "FSDFSDFSDFSDFSDSDS.ASDASDASDASD")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "10080"))  # 7 dias
 
 class FuncionarioTokken(BaseModel):
     id: int
