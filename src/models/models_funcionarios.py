@@ -17,7 +17,6 @@ class Funcionarios(Base):
     salario = Column(Float, nullable=False)
     senha = Column(String(255), nullable=False)
     data_contratacao = Column(Date, default=func.current_date(), nullable=False)
-    enderecos = relationship("Enderecos", back_populates="funcionario", cascade="all, delete-orphan")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
