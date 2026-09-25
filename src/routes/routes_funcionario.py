@@ -47,23 +47,17 @@ def obter_funcionario_por_id(id: int, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=FuncionarioResponse)
 def criar_funcionario(funcionario: FuncionarioCreate, db: Session = Depends(get_db)):
-    """ Cria um novo funcionário com endereço associado """
+    """ Cria um novo funcionário  """
     if querys_funcionario.obter_funcionarios_email(db, funcionario.email):
         raise HTTPException(status_code=400, detail="Email já cadastrado")
     if querys_funcionario.obter_funcionarios_cpf(db, funcionario.cpf):
         raise HTTPException(status_code=400, detail="CPF já cadastrado")
 
    
-    dados_funcionario = funcionario.model_dump(exclude={"enderecos"}, exclude_none=True)
+    dados_funcionario = funcionario.model_dump()
     funcionario_db = Funcionarios(**dados_funcionario)
 
-    dados_endereco = funcionario.enderecos.model_dump(exclude_none=True)
-    endereco_db = Enderecos(**dados_endereco)
-
-
-    funcionario_db.enderecos.append(endereco_db)
-
-    funcionario_persistido = querys_funcionario.criar_funcionario(db, funcionario_db)
+    funcionario_persistido = querys_funcionario.criar_funcionario(db, funcionario=funcionario_db)
     if not funcionario_persistido:
         raise HTTPException(status_code=400, detail="Erro ao criar funcionário")
 

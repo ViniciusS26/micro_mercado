@@ -7,7 +7,7 @@ from schemas.schema_funcionarios import FuncionarioCreate, EnderecoCreate, Funci
     return db.query(Funcionarios).all() """
 
 def listar_todos_funcionarios(db: Session):
-    return db.query(Funcionarios).options(joinedload(Funcionarios.enderecos)).all()
+    return db.query(Funcionarios).filter(Funcionarios).all()
 
 
 def obter_funcionario(db: Session, id: int):
