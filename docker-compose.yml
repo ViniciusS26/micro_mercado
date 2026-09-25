@@ -1,4 +1,19 @@
 services:
+
+  
+  database:
+    image: postgres:13
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=vini123
+      - POSTGRES_DB=mercado_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    
+    
   api:
     build: ./src
     volumes:
@@ -13,11 +28,8 @@ services:
       - SECRETY_KEY=FSDFSDFSDFSDFSDSDS.ASDASDASDASD
       - ALGORITHM=HS256
       - ACCESS_TOKEN_EXPIRE_MINUTES=10080
-    networks:
-      - default
-      - rede_do_qb_conecta
+    depends_on:
+      - database
 
-networks:
-  rede_do_qb_conecta:
-    external: true
-    name: qb_conecta_default
+volumes:
+  postgres_data:
