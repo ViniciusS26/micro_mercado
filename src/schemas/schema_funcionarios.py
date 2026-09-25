@@ -53,8 +53,6 @@ class FuncionarioCreate(BaseModel):
     salario: float
     senha: str
     data_contratacao: date
-    enderecos: EnderecoCreate
-
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -99,7 +97,6 @@ class FuncionarioResponse(BaseModel):
     salario: float
     senha: str
     data_contratacao: date
-    enderecos: List[EnderecoResponse]
     created_at: datetime | None = None
     updated_at: datetime | None = None
 
