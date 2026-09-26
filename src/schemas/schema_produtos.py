@@ -14,6 +14,8 @@ class ProdutoBase(BaseModel):
     data_cadastro: Optional[datetime] = None
     data_atualizacao: Optional[datetime] = None
 
+    model_config = ConfigDict(from_attributes=True)
+
 class ProdutoCreate(BaseModel):
     titulo: str
     descricao: str
@@ -21,6 +23,8 @@ class ProdutoCreate(BaseModel):
     peso: float
     data_fabricacao: date
     data_validade: date
+
+    model_config = ConfigDict(from_attributes=True)
 
    
 
@@ -31,8 +35,10 @@ class ProdutoUpdate(BaseModel):
     preco: Optional[float] = None
     peso: Optional[float] = None
 
+    model_config = ConfigDict(from_attributes=True)
+
 class Produto(ProdutoBase):
     id: int
 
-    class Config:
-        orm_mode = True
+
+    model_config = ConfigDict(from_attributes=True)

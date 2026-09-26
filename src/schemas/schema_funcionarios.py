@@ -2,7 +2,7 @@ from pydantic import BaseModel,field_validator, ConfigDict
 from typing import List, Optional
 from datetime import date, datetime
 from validate_docbr import CPF
-from services.security import get_password_hash, verify_password, create_access_token
+from services.security import get_password_hash
 
 
 

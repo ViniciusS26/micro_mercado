@@ -1,5 +1,4 @@
 from sqlalchemy import Column, Date,DateTime, ForeignKey, Integer, String, Float, Table
-from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from db.connection import Base
 
@@ -33,5 +32,3 @@ class Enderecos(Base):
     cidade = Column(String(50), nullable=False)
     estado = Column(String(2), nullable=False)
     cep = Column(String(10), nullable=False)
-
-    funcionario = relationship("Funcionarios", back_populates="enderecos")
