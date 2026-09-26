@@ -5,4 +5,3 @@ Esta api foi desenvolvida para construção do projetos pessoais como forma de p
 
 <img src="https://github.com/Vinicius02612.png" width="60" height="60" style="border-radius: 50%;">Vinicius Nunes[GitHub:](https://github.com/Vinicius02612)
 
-<img src="https://github.com/carlosvale03.png" width="60" height="60" style="border-radius: 50%;">Carlos Henrique[GitHub:](https://github.com/carlosvale03)
