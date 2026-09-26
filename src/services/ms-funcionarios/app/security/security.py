@@ -10,13 +10,14 @@ from jwt import encode, decode, DecodeError
 from fastapi.security import OAuth2PasswordBearer
 from http import HTTPStatus
 from pydantic import BaseModel, ConfigDict
-from db.dependeces import get_db  as get_session
+
+from ..db.dependeces import get_db  as get_session
 
 
 import os
 from dotenv import load_dotenv
 
-from models.models_funcionarios import Funcionarios
+from ..models.models_funcionarios import Funcionarios
 
 load_dotenv()
 
@@ -58,7 +59,15 @@ def verify_password(plain_password: str, hashed_password: str):
     Returns:
         bool: True se a senha for igual ao hash da senha, False caso contrário.
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    if hashed_password:
+        hashed_password_clean = str(hashed_password).strip()
+    try:
+        return pwd_context.verify(plain_password, hashed_password)
+    except Exception as e:
+        print(f"DEBUG - Erro no verify: {e}")
+        print(f"DEBUG - Senha fornecida: {plain_password}")
+        print(f"DEBUG - Hash recebido do DB: {repr(hashed_password_clean)}")
+        return False
 
 
 

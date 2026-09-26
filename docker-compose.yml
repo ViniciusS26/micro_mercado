@@ -1,35 +1,43 @@
+version: '3.8'
+
+networks:
+  sgm-network:
+    driver: bridge
+
+
 services:
 
-  
-  database:
-    image: postgres:13
-    restart: unless-stopped
+  # ==========================================
+  # MS FUNCIONÁRIOS
+  # ==========================================
+  db-funcionarios:
+    image: postgres:15-alpine
+    container_name: db-funcionarios
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=vini123
-      - POSTGRES_DB=mercado_db
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: db_funcionarios
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    
-    
-  api:
-    build: ./src
-    volumes:
-      - ./src:/code
-    command: python -m uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+      - db_funcionarios_data:/var/lib/postgresql/data
+    networks:
+      - sgm-network
     ports:
-      - "8001:8001"
+      - 5431:5431
+
+  ms-funcionarios:
+    build:
+      context: ./src/services/ms-funcionarios
+      dockerfile: Dockerfile
+    container_name: ms-funcionarios
     environment:
-      - PYTHONUNBUFFERED=1
-      - DATABASE_URL=postgresql://postgres:vini123@database:5432/mercado_db
-      # Variáveis de segurança injetadas diretamente no contêiner:
-      - SECRETY_KEY=FSDFSDFSDFSDFSDSDS.ASDASDASDASD
-      - ALGORITHM=HS256
-      - ACCESS_TOKEN_EXPIRE_MINUTES=10080
+      - DATABASE_URL=postgresql://postgres:postgrespassword@db-funcionarios:5432/db_funcionarios
     depends_on:
-      - database
+      - db-funcionarios
+    networks:
+      - sgm-network
+    ports:
+      - 8000:8000
 
 volumes:
-  postgres_data:
+  db_funcionarios_data:
+
