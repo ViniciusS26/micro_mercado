@@ -9,6 +9,7 @@ class ItemVendaBase(BaseModel):
     quantidade: int
     preco_unitario: float
 
+    model_config = ConfigDict(from_attributes=True)
 class ItemVendaCreate(ItemVendaBase):
     pass
 
@@ -26,9 +27,11 @@ class VendaBase(BaseModel):
     cpf: str
     cargo: str
 
+    model_config = ConfigDict(from_attributes=True)
 class VendaCreate(VendaBase):
     itens: List[ItemVendaCreate]
 
+    model_config = ConfigDict(from_attributes=True)
 class Venda(VendaBase):
     id: int
     data_venda: datetime
@@ -43,6 +46,7 @@ class PaginaVendasStats(BaseModel):
     valor_total_periodo: float
     total_produtos_periodo: int
 
+    model_config = ConfigDict(from_attributes=True)
 class PaginaVendas(BaseModel):
     """Schema completo para a resposta da listagem de vendas."""
     estatisticas: PaginaVendasStats
@@ -57,6 +61,7 @@ class RelatorioFuncionarioStats(BaseModel):
     valor_total_vendido: float
     total_produtos_vendidos: int
 
+    model_config = ConfigDict(from_attributes=True)
 class RelatorioFuncionario(BaseModel):
     """Schema completo para a resposta do relatório."""
     estatisticas: RelatorioFuncionarioStats
@@ -68,7 +73,7 @@ class RelatorioFuncionario(BaseModel):
 class VendaUpdate(VendaBase):
     itens: List[ItemVendaCreate]
 
-
+    model_config = ConfigDict(from_attributes=True)
 
 class Produto(BaseModel):
     id: int
