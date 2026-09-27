@@ -3,7 +3,7 @@ import httpx
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import date
-from ..schemas.schema_vendas import ItemVendaCreate, VendaCreate, NovaVendaCreate, Venda, PaginaVendas, RelatorioFuncionario,Produto, VendaUpdate
+from ..schemas.schema_vendas import ItemVendaCreate, VendaCreate, Venda, PaginaVendas, RelatorioFuncionario,Produto, VendaUpdate
 from ..db.querys_vendas import criar_venda, listar_vendas, obter_venda_por_id, obter_relatorio_por_funcionario, deletar_venda, atualizar_venda
 from ..db.dependeces import get_db
 import os
