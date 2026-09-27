@@ -22,7 +22,12 @@ services:
     networks:
       - sgm-network
     ports:
-      - 5431:5431
+      - 5431:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d db_funcionarios"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   ms-funcionarios:
     build:
@@ -30,13 +35,17 @@ services:
       dockerfile: Dockerfile
     container_name: ms-funcionarios
     environment:
-      - DATABASE_URL=postgresql://postgres:postgrespassword@db-funcionarios:5431/db_funcionarios
+      - DATABASE_URL=postgresql://postgres:postgrespassword@db-funcionarios:5432/db_funcionarios
     depends_on:
-      - db-funcionarios
+      db-funcionarios:
+        condition: service_healthy
     networks:
       - sgm-network
     ports:
       - 8000:8000
+    volumes:
+      - ./src/services/ms-funcionarios/app:/app/app
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
   
   # ==========================================
   # MS PRODUTOS
@@ -68,8 +77,44 @@ services:
       - sgm-network
     ports:
       - 8001:8001
+    volumes:
+      - ./src/services/ms-produtos/app:/app/app
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
+  
+  db-vendas:
+    image: postgres:15-alpine
+    container_name: db-vendas
+    environment:
+      POSTGRES_DB: db_vendas
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    volumes:
+      - db_vendas_data:/var/lib/postgresql/data
+    networks:
+      - sgm-network
+    ports:
+      - 5433:5432
+
+  ms-vendas:
+    build:
+      context: ./src/services/ms-vendas
+      dockerfile: Dockerfile
+    container_name: ms-vendas
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgrespassword@db-vendas:5432/db_vendas
+    depends_on:
+      - db-vendas
+    networks:
+      - sgm-network
+    ports:
+      - 8002:8001
+    volumes:
+      - ./src/services/ms-vendas/app:/app/app
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
+
 
 volumes:
   db_funcionarios_data:
   db_produtos_data:
+  db_vendas_data:
 

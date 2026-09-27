@@ -1,0 +1,99 @@
+from pydantic import BaseModel, ConfigDict
+from typing import List, Optional
+from datetime import datetime
+
+# --- Schemas para ItemVenda ---
+
+class ItemVendaBase(BaseModel):
+    produto_id: int
+    quantidade: int
+    titulo_produto:str
+    preco_unitario: float
+
+    model_config = ConfigDict(from_attributes=True)
+class ItemVendaCreate(ItemVendaBase):
+    pass
+
+class ItemVenda(ItemVendaBase):
+    id: int
+    venda_id: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+# --- Schemas para Venda ---
+
+class VendaBase(BaseModel):
+    funcionario_id: int
+    nome_funcionario:str
+    cpf: str
+    cargo: str
+
+    model_config = ConfigDict(from_attributes=True)
+class VendaCreate(VendaBase):
+    itens: List[ItemVendaCreate]
+
+    model_config = ConfigDict(from_attributes=True)
+class Venda(VendaBase):
+    id: int
+    data_venda: datetime
+    valor_total: float
+    itens: List[ItemVenda] = []
+
+    model_config = ConfigDict(from_attributes=True)
+    
+class PaginaVendasStats(BaseModel):
+    """Estatísticas agregadas para a consulta de vendas."""
+    total_registros: int
+    valor_total_periodo: float
+    total_produtos_periodo: int
+
+    model_config = ConfigDict(from_attributes=True)
+class PaginaVendas(BaseModel):
+    """Schema completo para a resposta da listagem de vendas."""
+    estatisticas: PaginaVendasStats
+    vendas: List[Venda]
+
+    model_config = ConfigDict(from_attributes=True)
+    
+    
+class RelatorioFuncionarioStats(BaseModel):
+    """Estatísticas agregadas das vendas do funcionário."""
+    total_vendas: int
+    valor_total_vendido: float
+    total_produtos_vendidos: int
+
+    model_config = ConfigDict(from_attributes=True)
+class RelatorioFuncionario(BaseModel):
+    """Schema completo para a resposta do relatório."""
+    estatisticas: RelatorioFuncionarioStats
+    vendas: List[Venda]
+
+    model_config = ConfigDict(from_attributes=True)
+    
+
+class VendaUpdate(VendaBase):
+    itens: List[ItemVendaCreate]
+
+    model_config = ConfigDict(from_attributes=True)
+
+class Produto(BaseModel):
+    id: int
+    titulo: str
+    descricao: Optional[str] = None
+    preco: float
+    model_config = ConfigDict(from_attributes=True)
+
+
+class Funcionario(BaseModel):
+    id: int
+    nome: str
+    cpf: str
+    cargo: str
+    model_config = ConfigDict(from_attributes=True)
+
+
+class NovaVendaCreate(BaseModel):
+    titulo_produto: str
+    id_funcionario: int
+
+    model_config = ConfigDict(extra="allow")  # permite campos extras sem quebrar
