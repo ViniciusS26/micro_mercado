@@ -30,14 +30,46 @@ services:
       dockerfile: Dockerfile
     container_name: ms-funcionarios
     environment:
-      - DATABASE_URL=postgresql://postgres:postgrespassword@db-funcionarios:5432/db_funcionarios
+      - DATABASE_URL=postgresql://postgres:postgrespassword@db-funcionarios:5431/db_funcionarios
     depends_on:
       - db-funcionarios
     networks:
       - sgm-network
     ports:
       - 8000:8000
+  
+  # ==========================================
+  # MS PRODUTOS
+  # ==========================================
+  db-produtos:
+    image: postgres:15-alpine
+    container_name: db-produtos
+    environment:
+      POSTGRES_DB: db_produtos
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    volumes:
+      - db_produtos_data:/var/lib/postgresql/data
+    networks:
+      - sgm-network
+    ports:
+      - 5432:5432
+
+  ms-produtos:
+    build:
+      context: ./src/services/ms-produtos
+      dockerfile: Dockerfile
+    container_name: ms-produtos
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgrespassword@db-produtos:5432/db_produtos
+    depends_on:
+      - db-produtos
+    networks:
+      - sgm-network
+    ports:
+      - 8001:8001
 
 volumes:
   db_funcionarios_data:
+  db_produtos_data:
 
