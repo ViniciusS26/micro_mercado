@@ -41,8 +41,6 @@ services:
         condition: service_healthy
     networks:
       - sgm-network
-    ports:
-      - 8000:8000
     volumes:
       - ./src/services/ms-funcionarios/app:/app/app
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
@@ -75,8 +73,6 @@ services:
       - db-produtos
     networks:
       - sgm-network
-    ports:
-      - 8001:8001
     volumes:
       - ./src/services/ms-produtos/app:/app/app
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
@@ -106,13 +102,22 @@ services:
       - db-vendas
     networks:
       - sgm-network
-    ports:
-      - 8002:8001
     volumes:
       - ./src/services/ms-vendas/app:/app/app
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
 
-
+  nginx:
+      image: nginx:alpine
+      ports:
+        - "8080:80"
+      volumes:
+        - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      depends_on:
+        - ms-funcionarios
+        - ms-produtos
+        - ms-vendas
+      networks:
+        - sgm-network
 volumes:
   db_funcionarios_data:
   db_produtos_data:
