@@ -11,7 +11,8 @@ from ..schemas.schema_funcionarios import (
     FuncionarioResponse,
     EnderecoResponse,
     EnderecoUpdate,
-    FuncionarioUpdate
+    FuncionarioUpdate,
+    LoginRequest
 )
 from ..models.models_funcionarios import Funcionarios, Enderecos
 from ..db.dependeces import get_db
@@ -22,11 +23,15 @@ router = APIRouter(prefix="/funcionarios")
 
 
 @router.post("/auth/")
-def login_funcionario(cpf: str, senha: str, db: Session = Depends(get_db)):
+def login_funcionario(dados:LoginRequest, db: Session = Depends(get_db)):
     """ Rota de login para funcionários """
     
     # Chama a função de autenticação passando a sessão 'db', o cpf e a senha
-    funcionario = security.authenticate_user(db=db, cpf=cpf, password=senha)
+    funcionario = security.authenticate_user(
+        db=db, 
+        cpf = dados.cpf,
+        password=dados.senha
+    )
    
     # Cria o token usando o CPF do funcionário autenticado
     token = security.create_access_token(data_payload={"sub": funcionario.cpf})

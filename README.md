@@ -24,12 +24,24 @@ Projeto de estudo para gerenciamento de operações de um mercado, desenvolvido 
 - **Docker e Docker Compose** para empacotamento e execução local.
 - **Nginx** como proxy reverso e ponto de entrada HTTP.
 - **Pytest** para testes automatizados.
+- **React, TypeScript e Vite** para a interface web.
+- **Tailwind CSS** para estilização responsiva do frontend.
 
 ## Organização do projeto
 
 ```text
 .
 ├── docker-compose.yml
+├── frontend/
+│   ├── package.json
+│   └── src/
+│       ├── App.tsx
+│       ├── Header/       # menu lateral e submenus
+│       ├── Home/         # composição das telas
+│       ├── Login/        # autenticação
+│       ├── Fornecedor/   # cadastro, listagem, edição e exclusão
+│       ├── Produtos/     # cadastro, listagem, edição e exclusão
+│       └── Vendas/       # cadastro, listagem, edição e exclusão
 ├── nginx/
 │   └── default.conf
 ├── imgs/
@@ -57,6 +69,69 @@ Projeto de estudo para gerenciamento de operações de um mercado, desenvolvido 
 ```
 
 Cada serviço tem sua própria aplicação FastAPI, dependências, modelos, schemas, rotas e testes. O `docker-compose.yml` também define um PostgreSQL e um volume persistente por domínio.
+
+## Frontend
+
+O frontend é uma aplicação React com TypeScript e Vite. Após o login, o usuário acessa um menu lateral responsivo com submenus para cada domínio da API:
+
+- **Funcionários**
+	- Cadastrar funcionário.
+	- Listar funcionários.
+	- Editar funcionário.
+	- Excluir funcionário.
+- **Produtos**
+	- Cadastrar produto.
+	- Listar produtos.
+	- Editar produto.
+	- Excluir produto.
+- **Vendas**
+	- Cadastrar venda.
+	- Selecionar o funcionário vendedor a partir da lista cadastrada.
+	- Listar vendas.
+	- Editar venda e quantidade dos itens.
+	- Excluir venda.
+
+As telas exibem estados de carregamento, mensagens de sucesso e erros retornados pelas APIs. As tabelas possuem ações de edição e exclusão, com confirmação antes da remoção dos registros.
+
+### Executar o frontend isoladamente
+
+Para executar apenas o frontend em modo de desenvolvimento:
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+O frontend ficará disponível em `http://localhost:5173`. Para que as operações funcionem, os serviços Docker e o Nginx também devem estar em execução:
+
+```powershell
+cd ..
+docker compose up --build -d
+```
+
+### Componentes principais
+
+```text
+frontend/src/
+├── App.tsx
+├── Header/
+│   └── Header.tsx
+├── Login/
+│   └── Login.tsx
+├── Fornecedor/
+│   ├── FuncionarioForm.tsx
+│   ├── FuncionarioList.tsx
+│   └── FuncionarioEditForm.tsx
+├── Produtos/
+│   ├── ProdutoForm.tsx
+│   ├── ProdutoList.tsx
+│   └── ProdutoEditForm.tsx
+└── Vendas/
+		├── VendaForm.tsx
+		├── VendaList.tsx
+		└── VendaEditForm.tsx
+```
 
 ## Da aplicação monolítica aos microsserviços
 
