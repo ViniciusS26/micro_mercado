@@ -133,7 +133,8 @@ class FuncionarioUpdate(BaseModel):
             raise ValueError('Salário não pode ser menor que um salário mínimo (R$1100)')
         return salario
 
+class LoginRequest(BaseModel):
+    cpf: str
+    senha: str
 
-
-
-   
+    model_config = ConfigDict(from_attributes=True)
