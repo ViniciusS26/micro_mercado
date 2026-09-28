@@ -10,14 +10,16 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="API FUNCIONÁRIOS - Sistema SGM",
     description="Ponto de entrada.",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url="/api/v1/funcionarios/docs",
+    openapi_url="/api/v1/funcionarios/openapi.json",
 )
 
 
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"], 
