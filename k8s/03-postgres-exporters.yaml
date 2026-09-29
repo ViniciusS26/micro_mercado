@@ -1,0 +1,218 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-exporter-funcionarios
+  namespace: mercado
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-exporter-funcionarios
+  template:
+    metadata:
+      labels:
+        app: postgres-exporter-funcionarios
+    spec:
+      containers:
+        - name: exporter
+          image: quay.io/prometheuscommunity/postgres-exporter:v0.17.1
+          env:
+            - name: DATA_SOURCE_URI
+              value: db-funcionarios:5432/db_funcionarios?sslmode=disable
+            - name: DATA_SOURCE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: database-credentials
+                  key: username
+            - name: DATA_SOURCE_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: database-credentials
+                  key: password
+          ports:
+            - name: metrics
+              containerPort: 9187
+          resources:
+            requests:
+              cpu: 25m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-exporter-funcionarios
+  namespace: mercado
+  labels:
+    app: postgres-exporter-funcionarios
+spec:
+  selector:
+    app: postgres-exporter-funcionarios
+  ports:
+    - name: metrics
+      port: 9187
+      targetPort: metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: postgres-exporter-funcionarios
+  namespace: mercado
+  labels:
+    release: monitoring-stack
+spec:
+  selector:
+    matchLabels:
+      app: postgres-exporter-funcionarios
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 15s
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-exporter-produtos
+  namespace: mercado
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-exporter-produtos
+  template:
+    metadata:
+      labels:
+        app: postgres-exporter-produtos
+    spec:
+      containers:
+        - name: exporter
+          image: quay.io/prometheuscommunity/postgres-exporter:v0.17.1
+          env:
+            - name: DATA_SOURCE_URI
+              value: db-produtos:5432/db_produtos?sslmode=disable
+            - name: DATA_SOURCE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: database-credentials
+                  key: username
+            - name: DATA_SOURCE_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: database-credentials
+                  key: password
+          ports:
+            - name: metrics
+              containerPort: 9187
+          resources:
+            requests:
+              cpu: 25m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-exporter-produtos
+  namespace: mercado
+  labels:
+    app: postgres-exporter-produtos
+spec:
+  selector:
+    app: postgres-exporter-produtos
+  ports:
+    - name: metrics
+      port: 9187
+      targetPort: metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: postgres-exporter-produtos
+  namespace: mercado
+  labels:
+    release: monitoring-stack
+spec:
+  selector:
+    matchLabels:
+      app: postgres-exporter-produtos
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 15s
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-exporter-vendas
+  namespace: mercado
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-exporter-vendas
+  template:
+    metadata:
+      labels:
+        app: postgres-exporter-vendas
+    spec:
+      containers:
+        - name: exporter
+          image: quay.io/prometheuscommunity/postgres-exporter:v0.17.1
+          env:
+            - name: DATA_SOURCE_URI
+              value: db-vendas:5432/db_vendas?sslmode=disable
+            - name: DATA_SOURCE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: database-credentials
+                  key: username
+            - name: DATA_SOURCE_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: database-credentials
+                  key: password
+          ports:
+            - name: metrics
+              containerPort: 9187
+          resources:
+            requests:
+              cpu: 25m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-exporter-vendas
+  namespace: mercado
+  labels:
+    app: postgres-exporter-vendas
+spec:
+  selector:
+    app: postgres-exporter-vendas
+  ports:
+    - name: metrics
+      port: 9187
+      targetPort: metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: postgres-exporter-vendas
+  namespace: mercado
+  labels:
+    release: monitoring-stack
+spec:
+  selector:
+    matchLabels:
+      app: postgres-exporter-vendas
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 15s
