@@ -1,8 +1,14 @@
 # API de Gerenciamento de Mercado
 
-Projeto de estudo para gerenciamento de operações de um mercado, desenvolvido com Python e FastAPI. A arquitetura atual separa funcionários, produtos e vendas em microsserviços independentes, executados com Docker Compose e acessados externamente por um proxy reverso Nginx.
+Projeto de estudo para gerenciamento de operações de um mercado, desenvolvido com Python e FastAPI. A arquitetura atual separa funcionários, produtos e vendas em microsserviços independentes, executados com Docker Compose e acessados externamente por um proxy reverso Nginx. As imagens a seguir foram geradas por IA apartir do código e da configuração do projeto.
 
 ![Diagrama da arquitetura atual](imgs/arquitetura_atual_microsservicos.png)
+
+## Arquitetura Kubernetes
+
+![Diagrama da arquitetura do projeto em Kubernetes](imgs/arquitetura_kubernetes.png)
+
+O diagrama mostra os workloads no Minikube: o namespace `mercado` contém frontend, Nginx/API Gateway, três APIs com HPA e três bancos PostgreSQL StatefulSet; o namespace `monitoring` reúne Prometheus, Grafana e exporters. O metrics-server fornece métricas de CPU para decisão dos HPAs. A imagem é gerada a partir dos manifests em `k8s/` pelo script `k8s/generate_architecture_diagram.py`.
 
 ## Funcionalidades
 
@@ -212,3 +218,182 @@ Os dados são mantidos nos volumes `db_funcionarios_data`, `db_produtos_data` e 
 ## Testes
 
 Os testes ficam em `app/tests/` dentro de cada microsserviço. Eles podem substituir dependências de banco e chamadas entre serviços por mocks para testar cada API isoladamente. Consulte os arquivos de teste de cada serviço para os cenários disponíveis.
+
+# Executar no Minikube e Kubernetes
+A baixo estão os comandos para criar um cluster Minikube local e executar a aplicação. Eles constroem as imagens, carregam-nas no cluster, criam os recursos e permitem inspecionar o estado dos pods e deployments.
+
+Com o Docker Desktop aberto usando o mecanismo Linux. Inicie o cluster Minikube e habilite o metrics-server, necessario para o HPA obter metricas de CPU:
+
+```powershell
+minikube start --driver=docker --cpus=4 --memory=6144
+minikube addons enable metrics-server
+kubectl config use-context minikube
+kubectl get nodes
+```
+
+Confirme o contexto antes de aplicar os manifests:
+
+```powershell
+kubectl config current-context
+```
+
+O resultado esperado e `minikube`. Os comandos abaixo criam recursos nesse contexto.
+
+
+## Construir e carregar as imagens
+
+Construa as imagens locais a partir da raiz do repositorio:
+
+```powershell
+docker build -t api-mercado/ms-funcionarios:atividade4 ./src/services/ms-funcionarios
+docker build -t api-mercado/ms-produtos:atividade4 ./src/services/ms-produtos
+docker build -t api-mercado/ms-vendas:atividade4 ./src/services/ms-vendas
+docker build -t api-mercado/frontend:atividade4 ./frontend
+```
+
+Carregue-as no cluster Minikube para que os pods consigam encontra-las:
+
+```powershell
+minikube image load api-mercado/ms-funcionarios:atividade4
+minikube image load api-mercado/ms-produtos:atividade4
+minikube image load api-mercado/ms-vendas:atividade4
+minikube image load api-mercado/frontend:atividade4
+```
+
+## 4. Criar os recursos da aplicacao
+
+Primeiro crie os bancos de dados. As APIs dependem deles para inicializar:
+
+```powershell
+kubectl apply -f ./k8s/01-databases.yaml
+kubectl rollout status statefulset/db-funcionarios -n mercado --timeout=180s
+kubectl rollout status statefulset/db-produtos -n mercado --timeout=180s
+kubectl rollout status statefulset/db-vendas -n mercado --timeout=180s
+```
+
+Em seguida crie as APIs, o frontend, o Nginx, os HPAs e os `ServiceMonitor`; por ultimo, os exporters dos bancos:
+
+```powershell
+kubectl apply -f ./k8s/02-applications.yaml
+kubectl apply -f ./k8s/03-postgres-exporters.yaml
+```
+
+Espere os componentes principais ficarem prontos:
+
+```powershell
+kubectl rollout status deployment/ms-funcionarios -n mercado --timeout=180s
+kubectl rollout status deployment/ms-produtos -n mercado --timeout=180s
+kubectl rollout status deployment/ms-vendas -n mercado --timeout=180s
+kubectl rollout status deployment/frontend -n mercado --timeout=180s
+kubectl rollout status deployment/nginx -n mercado --timeout=180s
+```
+
+As APIs iniciam com duas replicas. Seus HPAs podem aumentar ate cinco, com alvo de CPU de 60%. Os bancos e exporters permanecem com uma replica.
+# Configuração para Minikube e Kubernetes
+
+A seguir estão os comandos para executar a aplicação em um cluster Minikube local. Eles constroem as imagens, carregam-nas no cluster, criam os recursos e permitem inspecionar o estado dos pods e deployments.
+
+## Como os manifests criam os pods
+
+Os arquivos YAML declaram o estado desejado dos recursos. Ao aplicar um manifesto, o Kubernetes cria ou atualiza os controladores; são esses controladores que mantêm os pods disponíveis. A estrutura mais importante de um manifesto costuma ser:
+
+| Campo | Função |
+| --- | --- |
+| `apiVersion` | Versão da API Kubernetes usada pelo recurso. |
+| `kind` | Tipo do recurso, como `Deployment`, `StatefulSet`, `Service` ou `HorizontalPodAutoscaler`. |
+| `metadata` | Nome, namespace e labels do recurso. |
+| `spec` | Estado desejado: réplicas, seletores, template de pod, containers, imagens, recursos e probes. |
+
+O pod fica definido no `spec.template` de um `Deployment` ou `StatefulSet`. O template contém labels e a especificação dos containers. Os labels precisam corresponder ao `spec.selector` do controlador para que ele reconheça e gerencie os pods.
+
+### Responsabilidade de cada arquivo
+
+| Arquivo | Recursos que controlam a criação | Pods esperados |
+| --- | --- | --- |
+| `k8s/01-databases.yaml` | Cria o namespace `mercado`, o Secret e três `StatefulSet`. Cada StatefulSet declara `replicas: 1`, template do PostgreSQL e um PVC de 1 Gi. | `db-funcionarios-0`, `db-produtos-0` e `db-vendas-0`. A identidade ordinal e o volume persistente são mantidos pelo StatefulSet. |
+| `k8s/02-applications.yaml` | Declara `Deployment` para as três APIs, frontend, Nginx e Nginx exporter. Também declara Services, ConfigMap, ServiceMonitors, gateway e HPAs. | Cada Deployment mantém sua quantidade desejada: APIs, frontend e Nginx começam com duas réplicas; exporter começa com uma. |
+| `k8s/03-postgres-exporters.yaml` | Declara um `Deployment` para cada PostgreSQL exporter, com Service e ServiceMonitor correspondentes. | Um pod exporter para cada banco: funcionários, produtos e vendas. |
+
+O fluxo de criação das APIs é:
+
+```text
+Deployment -> ReplicaSet -> Pods
+```
+
+O Deployment guarda o template e o número desejado de réplicas. Seu ReplicaSet compara esse número com os pods existentes e cria ou remove pods para reconciliar a diferença. Por isso, ao deletar manualmente um pod gerenciado, o ReplicaSet cria outro. Para os bancos, o StatefulSet realiza a mesma manutenção de réplicas, mas dá nomes previsíveis aos pods e associa volumes persistentes.
+
+### O que não cria pods diretamente
+
+- `Service` seleciona pods por labels e encaminha tráfego para eles; não cria pods.
+- `HorizontalPodAutoscaler` observa métricas de CPU e altera o número desejado de réplicas do Deployment. O ReplicaSet então cria ou remove pods. O HPA depende do metrics-server para obter CPU.
+- `ServiceMonitor` informa ao Prometheus quais endpoints coletar; não cria pods. A stack Prometheus é instalada separadamente com Helm no namespace `monitoring`.
+- `ConfigMap` guarda a configuração do Nginx; sozinho, não cria pods. O Deployment Nginx monta essa configuração no container.
+
+Assim, as APIs iniciam com duas réplicas e podem variar entre duas e cinco pelo HPA, cujo alvo de CPU é 60%. Os limites e requests de CPU/memória, probes de liveness e readiness são definidos nos templates de pod dos Deployments.
+
+## Consultar pods e Deployments
+
+Liste pods, incluindo o no onde cada um esta executando:
+
+```powershell
+kubectl get pods -n mercado -o wide
+kubectl get deployments -n mercado
+kubectl get statefulsets -n mercado
+kubectl get services -n mercado
+kubectl get hpa -n mercado
+kubectl top pods -n mercado
+```
+
+Acompanhe as mudancas em tempo real:
+
+```powershell
+kubectl get pods -n mercado -w
+```
+
+Para inspecionar um pod especifico, primeiro obtenha seu nome com `kubectl get pods -n mercado`. Depois:
+
+```powershell
+kubectl describe pod NOME_DO_POD -n mercado
+kubectl logs NOME_DO_POD -n mercado
+```
+
+Use `kubectl logs -f NOME_DO_POD -n mercado` para acompanhar os logs continuamente. Se um pod tiver mais de um container, indique o container com `-c NOME_DO_CONTAINER`.
+
+## Criar um pod de teste manualmente
+
+Os pods da aplicacao sao criados pelos Deployments quando os manifests sao aplicados. Para aprender a criar um pod avulso de teste, use:
+
+```powershell
+kubectl run pod-teste --image=nginx:alpine --restart=Never --port=80 -n mercado
+kubectl get pod pod-teste -n mercado -o wide
+kubectl describe pod pod-teste -n mercado
+kubectl logs pod-teste -n mercado
+```
+
+Esse pod de teste nao faz parte da aplicacao e nao e recriado por um Deployment. Remova-o ao terminar:
+
+```powershell
+kubectl delete pod pod-teste -n mercado
+```
+
+Para verificar a criacao gerenciada da aplicacao, veja os pods que aparecem depois de `kubectl apply -f ./k8s/02-applications.yaml`:
+
+```powershell
+kubectl get pods -n mercado -l app=ms-produtos -w
+```
+
+## Deletar um pod e observar a recuperacao
+
+Use uma API gerenciada pelo Deployment, por exemplo `ms-produtos`. Em um terminal, escolha e remova um dos pods:
+
+```powershell
+$pod = kubectl get pods -n mercado -l app=ms-produtos -o jsonpath='{.items[0].metadata.name}'
+$pod
+kubectl delete pod $pod -n mercado
+```
+
+Em outro terminal, observe a substituicao:
+
+```powershell
+kubectl get pods -n mercado -l app=ms-produtos -w
+```
